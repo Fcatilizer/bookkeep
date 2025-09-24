@@ -278,8 +278,9 @@ class _CustomerMasterPageState extends State<CustomerMasterPage> {
               TextField(
                 controller: gstNoController,
                 decoration: const InputDecoration(
-                  labelText: 'GST Number',
+                  labelText: 'GST Number (Optional)',
                   border: OutlineInputBorder(),
+                  hintText: 'Enter GST number if applicable',
                 ),
               ),
             ],

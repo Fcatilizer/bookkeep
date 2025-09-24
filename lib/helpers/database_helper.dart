@@ -12,6 +12,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// DatabaseHelper - Singleton class for SQLite database management
 ///
@@ -21,6 +22,11 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 /// - Connection pooling and resource management
 /// - Foreign key constraint enforcement
 /// - Database migration handling
+/// - Platform-specific database paths for reliable write access
+///
+/// Database Paths:
+/// - Desktop (Windows/macOS/Linux): Documents/BookKeep/ directory for installer compatibility
+/// - Mobile (Android/iOS): Standard app database directory
 ///
 /// Database Schema:
 /// - customers: Customer information and contacts
@@ -86,13 +92,37 @@ class DatabaseHelper {
   /// Creates or opens the SQLite database file with:
   /// - Version management for schema updates
   /// - Foreign key constraint enforcement
-  /// - Proper file path resolution
+  /// - Proper file path resolution for cross-platform support
+  /// - Uses Documents directory for desktop platforms for better write permissions
+  /// - Automatic migration of existing database files
   ///
   /// [filePath] - Database filename
   /// Returns: Configured Database instance
   Future<Database> _initDB(String filePath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
+    String path;
+
+    // Use different paths based on platform for better reliability
+    if (Platform.isWindows || Platform.isMacOS || Platform.isLinux) {
+      // For desktop platforms, use Documents directory for reliable write access
+      final directory = await getApplicationDocumentsDirectory();
+      path = join(directory.path, 'BookKeep', filePath);
+
+      // Ensure the BookKeep directory exists
+      final bookkeepDir = Directory(join(directory.path, 'BookKeep'));
+      if (!await bookkeepDir.exists()) {
+        await bookkeepDir.create(recursive: true);
+      }
+
+      // Check for existing database in old location and migrate if needed
+      await _migrateExistingDatabaseIfNeeded(filePath, path);
+
+      print('Database path (Desktop): $path');
+    } else {
+      // For mobile platforms, use the standard database path
+      final dbPath = await getDatabasesPath();
+      path = join(dbPath, filePath);
+      print('Database path (Mobile): $path');
+    }
 
     return await openDatabase(
       path,
@@ -104,6 +134,57 @@ class DatabaseHelper {
         await db.execute('PRAGMA foreign_keys = ON');
       },
     );
+  }
+
+  /// Migrate existing database from old location to new location
+  ///
+  /// This method checks if a database exists in the old location (getDatabasesPath)
+  /// and moves it to the new location (Documents/BookKeep) to preserve user data.
+  /// This ensures users don't lose their existing data after the path change.
+  ///
+  /// [fileName] - Database filename
+  /// [newPath] - New database file path
+  Future<void> _migrateExistingDatabaseIfNeeded(
+    String fileName,
+    String newPath,
+  ) async {
+    try {
+      // Check if database already exists in new location
+      final newDbFile = File(newPath);
+      if (await newDbFile.exists()) {
+        return; // Database already exists in new location, no migration needed
+      }
+
+      // Check if database exists in old location
+      final oldDbPath = await getDatabasesPath();
+      final oldPath = join(oldDbPath, fileName);
+      final oldDbFile = File(oldPath);
+
+      if (await oldDbFile.exists()) {
+        print('Found existing database at old location: $oldPath');
+        print('Migrating to new location: $newPath');
+
+        // Copy the database file to new location
+        await oldDbFile.copy(newPath);
+
+        // Verify the copy was successful
+        if (await newDbFile.exists()) {
+          print('Database migration successful');
+
+          // Optionally, you can delete the old database file
+          // Commented out for safety - let users clean it up manually if they want
+          // await oldDbFile.delete();
+          // print('Old database file deleted');
+        } else {
+          print('Database migration failed - copy unsuccessful');
+        }
+      }
+    } catch (e) {
+      // Migration failed, but don't crash the app
+      // The app will create a new database in the new location
+      print('Database migration failed: $e');
+      print('App will create a new database in the new location');
+    }
   }
 
   Future _createDB(Database db, int version) async {
