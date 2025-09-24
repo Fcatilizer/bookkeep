@@ -1,0 +1,156 @@
+# 📚 BookKeep - Flutter Project .gitignore
+# Comprehensive exclusions for Flutter/Dart development
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+.fvm/
+
+# Temporary files
+*~
+*.tmp
+*.temp
+*.backup
+*.bak
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code
+# Uncomment if you want to exclude VS Code settings
+# .vscode/
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/launch.json
+.vscode/extensions.json
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.flutter-plugins
+.packages
+.pub-cache/
+.pub/
+/build/
+/coverage/
+lib/generated_plugin_registrant.dart
+
+# Database files - SQLite
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+databases/
+data/
+
+# Export files
+exports/
+*.csv
+*.pdf
+temp_exports/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Platform specific build directories
+/android/.gradle/
+/android/captures/
+/android/local.properties
+/android/key.properties
+/android/app/google-services.json
+
+# iOS specific
+/ios/Flutter/Generated.xcconfig
+/ios/Flutter/flutter_export_environment.sh
+/ios/Pods/
+/ios/.symlinks/
+/ios/Runner.xcworkspace/xcuserdata/
+/ios/Runner.xcodeproj/xcuserdata/
+/ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Web specific
+/web/favicon.png.old
+
+# Windows specific
+/windows/flutter/generated_plugins.cmake
+/windows/flutter/generated_plugin_registrant.cc
+/windows/flutter/generated_plugin_registrant.h
+
+# Linux specific
+/linux/flutter/generated_plugins.cmake
+/linux/flutter/generated_plugin_registrant.cc
+/linux/flutter/generated_plugin_registrant.h
+
+# macOS specific
+/macos/Flutter/GeneratedPluginRegistrant.swift
+/macos/Flutter/ephemeral/
+/macos/Pods/
+
+# Dependencies and packages
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Coverage reports
+coverage/
+*.lcov
+lcov.info
+
+# Test results
+test-results/
+junit.xml
+
+# Documentation build
+/doc/api/
+docs/
+
+# Archives
+*.tar.gz
+*.zip
+*.7z
+*.rar
+
+# Development and debugging
+.flutter-devtools/
+.dart_tool/flutter_build/

@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=BookKeep Accounting
+Comment=Comprehensive accounting application for business finance management
+Exec=bookkeep
+Icon=bookkeep
+Terminal=false
+Categories=Office;Finance;
+Keywords=accounting;finance;business;bookkeeping;
+StartupNotify=true
+StartupWMClass=com.ashish.bookkeep
