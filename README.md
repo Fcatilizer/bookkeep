@@ -1,6 +1,13 @@
-# 📚 BookKeep - Expense & Payment Management System
+# BookKeep - Manage Accounting
+
+<p align="center">
+   <img src="assets/icon.png" alt="BookKeep App Screenshot" width="180" />
+</p>
 
 A comprehensive Flutter application for managing expenses, payments, customer events, and financial tracking. Built with clean architecture and modern UI/UX principles.
+
+## Screenshots
+![App Screenshot](lib/Screenshots/Screenshot%202025-09-24%20090812.png)
 
 ## 🚀 Features
 
