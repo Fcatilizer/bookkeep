@@ -227,7 +227,9 @@ flutter build linux --release
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these guidelines:
+We welcome contributions! I'm also learning with AI and making mistakes. This project was build to help my own needs. Please add suggestions or improvements.
+
+Please follow these guidelines:
 
 ### Development Workflow
 
