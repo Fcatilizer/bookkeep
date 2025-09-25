@@ -32,6 +32,11 @@ import '../services/csv_export_service.dart';
 import '../helpers/payment_dialog.dart';
 import '../helpers/expense_type_dialog.dart';
 
+// Standardized UI Components
+import '../widgets/standardized_page_header.dart';
+import '../widgets/standardized_search_filter.dart';
+import '../widgets/standardized_common_widgets.dart';
+
 /// ExpenseMasterPage - Main page for expense and payment management
 ///
 /// This page provides a comprehensive interface for managing:
@@ -848,152 +853,52 @@ class _ExpenseMasterPageState extends State<ExpenseMasterPage>
   Widget _buildExpenseTypesTab() {
     return Column(
       children: [
-        // Header with Add Button and Export Button
-        Container(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              ElevatedButton.icon(
-                onPressed: _showAddExpenseTypeDialog,
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text('Add Expense Type'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-              const Spacer(),
-              ElevatedButton.icon(
-                onPressed: _exportExpenseTypesToCSV,
-                icon: const Icon(Icons.download, size: 18),
-                label: const Text('Export CSV'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            ],
-          ),
+        // Standardized Header for Expense Types
+        StandardizedPageHeader(
+          showViewToggle: false,
+          onAdd: _showAddExpenseTypeDialog,
+          addButtonLabel: 'Add Expense Type',
+          addButtonIcon: Icons.add,
+          showExportButton: true,
+          onExport: _exportExpenseTypesToCSV,
+          exportButtonLabel: 'Export CSV',
+          exportButtonColor: Colors.green,
         ),
 
-        // Search and Filters
-        Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // Search Bar
-              TextField(
-                controller: _expenseSearchController,
-                onChanged: _onExpenseSearchChanged,
-                decoration: InputDecoration(
-                  labelText: 'Search expense types...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _expenseSearchQuery.isNotEmpty
-                      ? IconButton(
-                          onPressed: () {
-                            _expenseSearchController.clear();
-                            _onExpenseSearchChanged('');
-                          },
-                          icon: const Icon(Icons.clear),
-                        )
-                      : null,
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Filter and Sort
-              Row(
-                children: [
-                  // Filter
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Filter by:',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const SizedBox(height: 4),
-                        Wrap(
-                          spacing: 8,
-                          children: ['All', 'Active', 'Inactive'].map((filter) {
-                            return FilterChip(
-                              label: Text(filter),
-                              selected: _expenseFilter == filter,
-                              onSelected: (selected) {
-                                if (selected) {
-                                  setState(() => _expenseFilter = filter);
-                                  _applyExpenseFiltersAndSort();
-                                }
-                              },
-                              backgroundColor: Theme.of(
-                                context,
-                              ).colorScheme.surfaceContainerLow,
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(width: 16),
-
-                  // Sort
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Sort by:',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const SizedBox(height: 4),
-                        Wrap(
-                          spacing: 8,
-                          children: ['Name', 'Category', 'Date'].map((sort) {
-                            return ActionChip(
-                              label: Text(sort),
-                              backgroundColor: _expenseSort == sort
-                                  ? Theme.of(
-                                      context,
-                                    ).colorScheme.primaryContainer
-                                  : Theme.of(
-                                      context,
-                                    ).colorScheme.surfaceContainerLow,
-                              onPressed: () {
-                                setState(() => _expenseSort = sort);
-                                _applyExpenseFiltersAndSort();
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        // Standardized Search and Filter for Expense Types
+        StandardizedSearchFilter(
+          searchController: _expenseSearchController,
+          onSearchChanged: _onExpenseSearchChanged,
+          searchHint: 'Search expense types...',
+          filterOptions: const [
+            FilterOption(label: 'All', value: 'All'),
+            FilterOption(label: 'Active', value: 'Active'),
+            FilterOption(label: 'Inactive', value: 'Inactive'),
+          ],
+          selectedFilter: _expenseFilter,
+          onFilterChanged: (filter) {
+            setState(() => _expenseFilter = filter);
+            _applyExpenseFiltersAndSort();
+          },
+          sortOptions: const [
+            SortOption(label: 'Name', value: 'Name'),
+            SortOption(label: 'Category', value: 'Category'),
+            SortOption(label: 'Date', value: 'Date'),
+          ],
+          selectedSort: _expenseSort,
+          sortAscending: true,
+          onSortChanged: (sort) {
+            setState(() => _expenseSort = sort);
+            _applyExpenseFiltersAndSort();
+          },
         ),
 
-        // Results Count
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            children: [
-              Icon(
-                Icons.category,
-                size: 16,
-                color: Theme.of(context).textTheme.bodySmall?.color,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '${_filteredExpenseTypes.length} expense types found',
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ],
-          ),
+        // Results Counter
+        StandardizedResultsCounter(
+          count: _filteredExpenseTypes.length,
+          singularLabel: 'expense type',
+          pluralLabel: 'expense types',
+          icon: Icons.category,
         ),
 
         // Expense Types List
@@ -1162,7 +1067,7 @@ class _ExpenseMasterPageState extends State<ExpenseMasterPage>
   }
 
   Widget _buildPaymentsTab() {
-    return Column(
+    Widget content = Column(
       children: [
         // Header with Add Button and Export Button
         Container(
@@ -1779,6 +1684,25 @@ class _ExpenseMasterPageState extends State<ExpenseMasterPage>
         ),
       ],
     );
+
+    // Return content with horizontal scrollbar at the bottom when in table view
+    return (!_showGroupedView && _showTableView)
+        ? Scrollbar(
+            controller: _tableHorizontalController,
+            scrollbarOrientation: ScrollbarOrientation.bottom,
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              controller: _tableHorizontalController,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: MediaQuery.of(
+                  context,
+                ).size.width.clamp(1200.0, double.infinity),
+                child: content,
+              ),
+            ),
+          )
+        : content;
   }
 
   Widget _buildGroupedPaymentView() {
@@ -2096,162 +2020,167 @@ class _ExpenseMasterPageState extends State<ExpenseMasterPage>
   }
 
   Widget _buildPaymentTable() {
-    return Scrollbar(
-      thumbVisibility: true,
-      controller: _tableHorizontalController,
-      child: SingleChildScrollView(
-        controller: _tableHorizontalController,
-        scrollDirection: Axis.horizontal,
-        child: Scrollbar(
-          thumbVisibility: true,
-          controller: _tableVerticalController,
-          child: SingleChildScrollView(
+    return Column(
+      children: [
+        Expanded(
+          child: Scrollbar(
+            thumbVisibility: true,
             controller: _tableVerticalController,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: MediaQuery.of(context).size.width,
-              ),
-              child: DataTable(
-                columnSpacing: 16,
-                horizontalMargin: 16,
-                columns: const [
-                  DataColumn(label: Text('Payment ID')),
-                  DataColumn(label: Text('Event')),
-                  DataColumn(label: Text('Customer')),
-                  DataColumn(label: Text('Paying Person')),
-                  DataColumn(label: Text('Type')),
-                  DataColumn(label: Text('Amount')),
-                  DataColumn(label: Text('Agreed Amount')),
-                  DataColumn(label: Text('Remaining')),
-                  DataColumn(label: Text('Status')),
-                  DataColumn(label: Text('Date')),
-                  DataColumn(label: Text('Reference')),
-                  DataColumn(label: Text('Actions')),
-                ],
-                rows: _filteredPayments.map((payment) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(payment.paymentId)),
-                      DataCell(Text(payment.customerEventNo)),
-                      DataCell(
-                        FutureBuilder<String>(
-                          future: _getCustomerName(payment.customerEventNo),
-                          builder: (context, snapshot) {
-                            return Text(snapshot.data ?? 'Loading...');
-                          },
-                        ),
-                      ),
-                      DataCell(Text(payment.payingPersonName)),
-                      DataCell(
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _getPaymentIcon(payment.paymentType),
-                              size: 16,
-                              color: _getPaymentTypeColor(payment.paymentType),
-                            ),
-                            const SizedBox(width: 4),
-                            Text(payment.paymentTypeDisplayName),
-                          ],
-                        ),
-                      ),
-                      DataCell(Text('₹${payment.amount.toStringAsFixed(2)}')),
-                      DataCell(
-                        FutureBuilder<double>(
-                          future: _getAgreedAmount(payment.customerEventNo),
-                          builder: (context, snapshot) {
-                            return Text(
-                              '₹${(snapshot.data ?? 0.0).toStringAsFixed(2)}',
-                            );
-                          },
-                        ),
-                      ),
-                      DataCell(
-                        FutureBuilder<double>(
-                          future: _getRemainingAmount(payment.customerEventNo),
-                          builder: (context, snapshot) {
-                            final remaining = snapshot.data ?? 0.0;
-                            return Text(
-                              '₹${remaining.toStringAsFixed(2)}',
-                              style: TextStyle(
-                                color: remaining < 0
-                                    ? Colors.orange
-                                    : remaining > 0
-                                    ? Colors.red
-                                    : Colors.green,
-                                fontWeight: FontWeight.w500,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      DataCell(
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getPaymentStatusColor(payment.status),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            payment.statusDisplayName,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
+            child: SingleChildScrollView(
+              controller: _tableVerticalController,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: MediaQuery.of(context).size.width,
+                ),
+                child: DataTable(
+                  columnSpacing: 16,
+                  horizontalMargin: 16,
+                  columns: const [
+                    DataColumn(label: Text('Payment ID')),
+                    DataColumn(label: Text('Event')),
+                    DataColumn(label: Text('Customer')),
+                    DataColumn(label: Text('Paying Person')),
+                    DataColumn(label: Text('Type')),
+                    DataColumn(label: Text('Amount')),
+                    DataColumn(label: Text('Agreed Amount')),
+                    DataColumn(label: Text('Remaining')),
+                    DataColumn(label: Text('Status')),
+                    DataColumn(label: Text('Date')),
+                    DataColumn(label: Text('Reference')),
+                    DataColumn(label: Text('Actions')),
+                  ],
+                  rows: _filteredPayments.map((payment) {
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(payment.paymentId)),
+                        DataCell(Text(payment.customerEventNo)),
+                        DataCell(
+                          FutureBuilder<String>(
+                            future: _getCustomerName(payment.customerEventNo),
+                            builder: (context, snapshot) {
+                              return Text(snapshot.data ?? 'Loading...');
+                            },
                           ),
                         ),
-                      ),
-                      DataCell(Text(_formatDate(payment.paymentDate))),
-                      DataCell(Text(payment.reference ?? '-')),
-                      DataCell(
-                        PopupMenuButton<String>(
-                          onSelected: (value) {
-                            switch (value) {
-                              case 'edit':
-                                _showEditPaymentDialog(payment);
-                                break;
-                              case 'delete':
-                                _deletePayment(payment.paymentId);
-                                break;
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: ListTile(
-                                leading: Icon(Icons.edit),
-                                title: Text('Edit'),
-                                dense: true,
-                              ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: ListTile(
-                                leading: Icon(Icons.delete, color: Colors.red),
-                                title: Text(
-                                  'Delete',
-                                  style: TextStyle(color: Colors.red),
+                        DataCell(Text(payment.payingPersonName)),
+                        DataCell(
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _getPaymentIcon(payment.paymentType),
+                                size: 16,
+                                color: _getPaymentTypeColor(
+                                  payment.paymentType,
                                 ),
-                                dense: true,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(payment.paymentTypeDisplayName),
+                            ],
+                          ),
+                        ),
+                        DataCell(Text('₹${payment.amount.toStringAsFixed(2)}')),
+                        DataCell(
+                          FutureBuilder<double>(
+                            future: _getAgreedAmount(payment.customerEventNo),
+                            builder: (context, snapshot) {
+                              return Text(
+                                '₹${(snapshot.data ?? 0.0).toStringAsFixed(2)}',
+                              );
+                            },
+                          ),
+                        ),
+                        DataCell(
+                          FutureBuilder<double>(
+                            future: _getRemainingAmount(
+                              payment.customerEventNo,
+                            ),
+                            builder: (context, snapshot) {
+                              final remaining = snapshot.data ?? 0.0;
+                              return Text(
+                                '₹${remaining.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  color: remaining < 0
+                                      ? Colors.orange
+                                      : remaining > 0
+                                      ? Colors.red
+                                      : Colors.green,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        DataCell(
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _getPaymentStatusColor(payment.status),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              payment.statusDisplayName,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+                        DataCell(Text(_formatDate(payment.paymentDate))),
+                        DataCell(Text(payment.reference ?? '-')),
+                        DataCell(
+                          PopupMenuButton<String>(
+                            onSelected: (value) {
+                              switch (value) {
+                                case 'edit':
+                                  _showEditPaymentDialog(payment);
+                                  break;
+                                case 'delete':
+                                  _deletePayment(payment.paymentId);
+                                  break;
+                              }
+                            },
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: ListTile(
+                                  leading: Icon(Icons.edit),
+                                  title: Text('Edit'),
+                                  dense: true,
+                                ),
+                              ),
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: ListTile(
+                                  leading: Icon(
+                                    Icons.delete,
+                                    color: Colors.red,
+                                  ),
+                                  title: Text(
+                                    'Delete',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                  dense: true,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ), // closes DataTable
+              ), // closes ConstrainedBox
+            ), // closes vertical SingleChildScrollView
+          ), // closes vertical Scrollbar
+        ), // closes Expanded
+      ], // closes Column children
+    ); // closes Column
   }
 
   Widget _buildPaymentCards() {

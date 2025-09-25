@@ -4,11 +4,49 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../models/customer_event.dart';
 import 'customer_event_service.dart';
+import 'product_service.dart';
 import 'settings_service.dart';
 
 class ExportService {
   final CustomerEventService _customerEventService = CustomerEventService();
   final SettingsService _settingsService = SettingsService();
+  final ProductService _productService = ProductService();
+
+  // Helper method to calculate tax breakdown
+  Future<Map<String, double>> _calculateTaxBreakdown(
+    CustomerEvent event,
+  ) async {
+    try {
+      final product = await _productService.getProductById(event.productId);
+
+      if (product != null && product.taxRate > 0) {
+        // Calculate base amount from agreed amount (reverse calculation)
+        // agreed amount = base amount + (base amount * tax rate / 100)
+        // agreed amount = base amount * (1 + tax rate / 100)
+        // base amount = agreed amount / (1 + tax rate / 100)
+        final double baseAmount =
+            event.agreedAmount / (1 + (product.taxRate / 100));
+        final double taxAmount = event.agreedAmount - baseAmount;
+
+        return {
+          'baseAmount': baseAmount,
+          'taxAmount': taxAmount,
+          'taxRate': product.taxRate,
+          'totalAmount': event.agreedAmount,
+        };
+      }
+    } catch (e) {
+      print('Error calculating tax breakdown: $e');
+    }
+
+    // If no product found or no tax, return the agreed amount as base
+    return {
+      'baseAmount': event.agreedAmount,
+      'taxAmount': 0.0,
+      'taxRate': 0.0,
+      'totalAmount': event.agreedAmount,
+    };
+  }
 
   // Generate HTML template for A4 format
   Future<String> generateA4HtmlTemplate(
@@ -24,6 +62,9 @@ class ExportService {
 
     final double remaining = event.agreedAmount - totalSpent;
     final bool isOverBudget = totalSpent > event.agreedAmount;
+
+    // Get tax breakdown
+    final taxBreakdown = await _calculateTaxBreakdown(event);
 
     return '''
 <!DOCTYPE html>
@@ -211,14 +252,29 @@ class ExportService {
     <div class="financial-summary">
         <div class="summary-title">Financial Summary</div>
         
+        ${(taxBreakdown['taxRate'] as double) > 0 ? '''
+        <div class="amount-row">
+            <span class="amount-label">Base Amount:</span>
+            <span class="amount-value">₹${(taxBreakdown['baseAmount'] as double).toStringAsFixed(2)}</span>
+        </div>
+        <div class="amount-row">
+            <span class="amount-label">Tax (${(taxBreakdown['taxRate'] as double).toStringAsFixed(1)}%):</span>
+            <span class="amount-value">₹${(taxBreakdown['taxAmount'] as double).toStringAsFixed(2)}</span>
+        </div>
+        <div class="amount-row">
+            <span class="amount-label">Total Amount:</span>
+            <span class="amount-value agreed-amount">₹${(taxBreakdown['totalAmount'] as double).toStringAsFixed(2)}</span>
+        </div>
+        ''' : '''
         <div class="amount-row">
             <span class="amount-label">Agreed Amount:</span>
             <span class="amount-value agreed-amount">₹${event.agreedAmount.toStringAsFixed(2)}</span>
         </div>
+        '''}
 
         ${dailyEvents.isNotEmpty ? '''
         <div class="daily-activity">
-            <div class="daily-activity-title">Daily Activity Breakdown</div>
+            <div class="daily-activity-title">Expenses Breakdown</div>
             ${dailyEvents.map((dailyEvent) {
             final amount = (dailyEvent['Amount'] is int) ? (dailyEvent['Amount'] as int).toDouble() : (dailyEvent['Amount'] as double? ?? 0.0);
             return '''
@@ -266,6 +322,9 @@ class ExportService {
 
     final double remaining = event.agreedAmount - totalSpent;
     final bool isOverBudget = totalSpent > event.agreedAmount;
+
+    // Get tax breakdown for thermal template
+    final taxBreakdown = await _calculateTaxBreakdown(event);
 
     return '''
 <!DOCTYPE html>
@@ -404,10 +463,25 @@ class ExportService {
 
     <div class="divider"></div>
     
+    ${(taxBreakdown['taxRate'] as double) > 0 ? '''
+    <div class="row">
+        <span class="label">Base Amt:</span>
+        <span class="value">₹${(taxBreakdown['baseAmount'] as double).toStringAsFixed(2)}</span>
+    </div>
+    <div class="row">
+        <span class="label">Tax (${(taxBreakdown['taxRate'] as double).toStringAsFixed(1)}%):</span>
+        <span class="value">₹${(taxBreakdown['taxAmount'] as double).toStringAsFixed(2)}</span>
+    </div>
+    <div class="row">
+        <span class="label">Total Amt:</span>
+        <span class="value">₹${(taxBreakdown['totalAmount'] as double).toStringAsFixed(2)}</span>
+    </div>
+    ''' : '''
     <div class="row">
         <span class="label">Agreed Amt:</span>
         <span class="value">₹${event.agreedAmount.toStringAsFixed(2)}</span>
     </div>
+    '''}
 
     ${dailyEvents.isNotEmpty ? '''
     <div class="divider"></div>
@@ -678,7 +752,7 @@ class ExportService {
 
                         if (dailyEvents.isNotEmpty) ...[
                           pw.Text(
-                            'Daily Activity Breakdown',
+                            'Expenses Breakdown',
                             style: pw.TextStyle(
                               fontSize: 14,
                               fontWeight: pw.FontWeight.bold,

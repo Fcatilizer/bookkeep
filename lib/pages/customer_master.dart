@@ -3,6 +3,9 @@ import '../models/customer.dart';
 import '../services/customer_service.dart';
 import '../helpers/customer_notifier.dart';
 import '../services/csv_export_service.dart';
+import '../widgets/standardized_page_header.dart';
+import '../widgets/standardized_search_filter.dart';
+import '../widgets/standardized_common_widgets.dart';
 
 enum ViewMode { card, table }
 
@@ -388,347 +391,298 @@ class _CustomerMasterPageState extends State<CustomerMasterPage> {
   }
 
   Widget _buildTableView() {
-    return Scrollbar(
-      controller: _horizontalScrollController,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: _horizontalScrollController,
-        scrollDirection: Axis.horizontal,
-        child: Scrollbar(
-          controller: _verticalScrollController,
-          thumbVisibility: true,
-          child: SingleChildScrollView(
+    return Column(
+      children: [
+        Expanded(
+          child: Scrollbar(
             controller: _verticalScrollController,
-            scrollDirection: Axis.vertical,
-            child: DataTable(
-              columnSpacing: 16,
-              headingRowHeight: 48,
-              dataRowHeight: 48,
-              columns: const [
-                DataColumn(
-                  label: Text(
-                    'Customer ID',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              controller: _verticalScrollController,
+              scrollDirection: Axis.vertical,
+              child: DataTable(
+                columnSpacing: 16,
+                headingRowHeight: 48,
+                dataRowHeight: 48,
+                columns: const [
+                  DataColumn(
+                    label: Text(
+                      'Customer ID',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Customer Name',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Customer Name',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Mobile No',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Mobile No',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Contact Person',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Contact Person',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'GST No',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'GST No',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Location',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Location',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-              ],
-              rows: _filteredCustomers.map((customer) {
-                return DataRow(
-                  cells: [
-                    DataCell(Text(customer.custId)),
-                    DataCell(
-                      SizedBox(
-                        width: 150,
-                        child: Text(
-                          customer.customerName,
-                          overflow: TextOverflow.ellipsis,
+                ],
+                rows: _filteredCustomers.map((customer) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(customer.custId)),
+                      DataCell(
+                        SizedBox(
+                          width: 150,
+                          child: Text(
+                            customer.customerName,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
-                    ),
-                    DataCell(
-                      SizedBox(
-                        width: 120,
-                        child: Text(
-                          customer.mobileNo,
-                          overflow: TextOverflow.ellipsis,
+                      DataCell(
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            customer.mobileNo,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
-                    ),
-                    DataCell(
-                      SizedBox(
-                        width: 150,
-                        child: Text(
-                          customer.contactPerson,
-                          overflow: TextOverflow.ellipsis,
+                      DataCell(
+                        SizedBox(
+                          width: 150,
+                          child: Text(
+                            customer.contactPerson,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
-                    ),
-                    DataCell(
-                      SizedBox(
-                        width: 120,
-                        child: Text(
-                          customer.gstNo,
-                          overflow: TextOverflow.ellipsis,
+                      DataCell(
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            customer.gstNo,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
-                    ),
-                    DataCell(
-                      SizedBox(
-                        width: 120,
-                        child: Text(
-                          customer.location,
-                          overflow: TextOverflow.ellipsis,
+                      DataCell(
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            customer.location,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              }).toList(),
-            ), // closes DataTable
-          ), // closes inner SingleChildScrollView
-        ), // closes inner Scrollbar
-      ), // closes outer SingleChildScrollView
-    ); // closes outer Scrollbar
+                    ],
+                  );
+                }).toList(),
+              ), // closes DataTable
+            ), // closes vertical SingleChildScrollView
+          ), // closes vertical Scrollbar
+        ), // closes Expanded
+      ], // closes Column children
+    ); // closes Column
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Column(
-        children: [
-          // View Mode and Controls
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Text(
-                  'View:',
-                  style: Theme.of(
+      body: _currentViewMode == ViewMode.table
+          ? Scrollbar(
+              controller: _horizontalScrollController,
+              scrollbarOrientation: ScrollbarOrientation.bottom,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: _horizontalScrollController,
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: MediaQuery.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                  ).size.width.clamp(800.0, double.infinity),
+                  child: Column(
+                    children: [
+                      // Standardized Header
+                      StandardizedPageHeader(
+                        showViewToggle: true,
+                        selectedViewIndex: _currentViewMode == ViewMode.card
+                            ? 0
+                            : 1,
+                        onViewChanged: (int index) {
+                          setState(() {
+                            _currentViewMode = index == 0
+                                ? ViewMode.card
+                                : ViewMode.table;
+                          });
+                        },
+                        onAdd: () => _showAddCustomerDialog(),
+                        addButtonLabel: 'Add Customer',
+                        addButtonIcon: Icons.add,
+                        showExportButton: _currentViewMode == ViewMode.table,
+                        onExport: _currentViewMode == ViewMode.table
+                            ? _exportToCSV
+                            : null,
+                        exportButtonLabel: 'Export to CSV',
+                        exportButtonColor: Colors.green,
+                      ),
+                      // Standardized Search and Filter
+                      StandardizedSearchFilter(
+                        searchController: _searchController,
+                        onSearchChanged: _filterCustomers,
+                        searchHint: 'Search customers...',
+                        filterOptions: const [
+                          FilterOption(label: 'All', value: 'all'),
+                          FilterOption(label: 'Name', value: 'name'),
+                          FilterOption(label: 'ID', value: 'id'),
+                          FilterOption(label: 'Location', value: 'location'),
+                        ],
+                        selectedFilter: _filterBy,
+                        onFilterChanged: _changeFilterBy,
+                        sortOptions: const [
+                          SortOption(label: 'Name', value: 'name'),
+                          SortOption(label: 'ID', value: 'id'),
+                          SortOption(label: 'Location', value: 'location'),
+                        ],
+                        selectedSort: _sortBy,
+                        sortAscending: _sortAscending,
+                        onSortChanged: _changeSortOrder,
+                      ),
+                      // Results Counter
+                      StandardizedResultsCounter(
+                        count: _filteredCustomers.length,
+                        singularLabel: 'customer',
+                        pluralLabel: 'customers',
+                        icon: Icons.people,
+                      ),
+                      // Divider
+                      const Divider(height: 1),
+                      const SizedBox(height: 8),
+                      // Customer list
+                      Expanded(
+                        child: _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : _filteredCustomers.isEmpty
+                            ? StandardizedEmptyState(
+                                icon: Icons.people_outline,
+                                title: _customers.isEmpty
+                                    ? 'No customers yet'
+                                    : 'No customers found',
+                                subtitle: _customers.isEmpty
+                                    ? 'Add your first customer using the + button'
+                                    : 'Try a different search term',
+                                showClearSearchAction: _customers.isNotEmpty,
+                                onClearSearch: _customers.isNotEmpty
+                                    ? () {
+                                        _searchController.clear();
+                                        _filterCustomers('');
+                                      }
+                                    : null,
+                              )
+                            : _buildTableView(),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
-                ToggleButtons(
-                  children: [
-                    Icon(Icons.view_list, size: 18),
-                    Icon(Icons.table_chart, size: 18),
-                  ],
-                  isSelected: [
-                    _currentViewMode == ViewMode.card,
-                    _currentViewMode == ViewMode.table,
-                  ],
-                  onPressed: (int index) {
+              ),
+            )
+          : Column(
+              children: [
+                // Standardized Header
+                StandardizedPageHeader(
+                  showViewToggle: true,
+                  selectedViewIndex: _currentViewMode == ViewMode.card ? 0 : 1,
+                  onViewChanged: (int index) {
                     setState(() {
                       _currentViewMode = index == 0
                           ? ViewMode.card
                           : ViewMode.table;
                     });
                   },
-                  borderRadius: BorderRadius.circular(8),
-                  constraints: BoxConstraints(minWidth: 35, minHeight: 35),
+                  onAdd: () => _showAddCustomerDialog(),
+                  addButtonLabel: 'Add Customer',
+                  addButtonIcon: Icons.add,
+                  showExportButton: _currentViewMode == ViewMode.table,
+                  onExport: _currentViewMode == ViewMode.table
+                      ? _exportToCSV
+                      : null,
+                  exportButtonLabel: 'Export to CSV',
+                  exportButtonColor: Colors.green,
                 ),
-                const Spacer(),
-                if (_currentViewMode == ViewMode.table) ...[
-                  IconButton(
-                    onPressed: _exportToCSV,
-                    icon: Icon(Icons.download, size: 18),
-                    tooltip: 'Export to CSV',
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                ElevatedButton.icon(
-                  onPressed: () => _showAddCustomerDialog(),
-                  icon: Icon(Icons.add, size: 18),
-                  label: Text('Add Customer'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6FAADB),
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Filter and Sort Controls
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 16),
-                // Search bar
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    labelText: 'Search customers...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            onPressed: () {
-                              _searchController.clear();
-                              _filterCustomers('');
-                            },
-                            icon: const Icon(Icons.clear),
-                          )
-                        : null,
-                    border: const OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                  ),
-                  onChanged: _filterCustomers,
-                ),
-                const SizedBox(height: 16),
-                // Filter and Sort Controls
-                Row(
-                  children: [
-                    // Filter dropdown
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Filter by:',
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Wrap(
-                            spacing: 8,
-                            children: [
-                              _buildFilterChip('All', 'all'),
-                              _buildFilterChip('Name', 'name'),
-                              _buildFilterChip('ID', 'id'),
-                              _buildFilterChip('Location', 'location'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Sort controls
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Sort by:',
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Wrap(
-                            spacing: 8,
-                            children: [
-                              _buildSortChip('Name', 'name'),
-                              _buildSortChip('ID', 'id'),
-                              _buildSortChip('Location', 'location'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                // Standardized Search and Filter
+                StandardizedSearchFilter(
+                  searchController: _searchController,
+                  onSearchChanged: _filterCustomers,
+                  searchHint: 'Search customers...',
+                  filterOptions: const [
+                    FilterOption(label: 'All', value: 'all'),
+                    FilterOption(label: 'Name', value: 'name'),
+                    FilterOption(label: 'ID', value: 'id'),
+                    FilterOption(label: 'Location', value: 'location'),
                   ],
+                  selectedFilter: _filterBy,
+                  onFilterChanged: _changeFilterBy,
+                  sortOptions: const [
+                    SortOption(label: 'Name', value: 'name'),
+                    SortOption(label: 'ID', value: 'id'),
+                    SortOption(label: 'Location', value: 'location'),
+                  ],
+                  selectedSort: _sortBy,
+                  sortAscending: _sortAscending,
+                  onSortChanged: _changeSortOrder,
                 ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-
-          // Results count
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.people,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                // Results Counter
+                StandardizedResultsCounter(
+                  count: _filteredCustomers.length,
+                  singularLabel: 'customer',
+                  pluralLabel: 'customers',
+                  icon: Icons.people,
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  '${_filteredCustomers.length} customer${_filteredCustomers.length != 1 ? 's' : ''} found',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Divider
-          const Divider(height: 1),
-          const SizedBox(height: 8),
-
-          // Customer list
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _filteredCustomers.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.people_outline,
-                          size: 64,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primary.withOpacity(0.5),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _customers.isEmpty
+                // Divider
+                const Divider(height: 1),
+                const SizedBox(height: 8),
+                // Customer list
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _filteredCustomers.isEmpty
+                      ? StandardizedEmptyState(
+                          icon: Icons.people_outline,
+                          title: _customers.isEmpty
                               ? 'No customers yet'
                               : 'No customers found',
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withOpacity(0.6),
-                              ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _customers.isEmpty
+                          subtitle: _customers.isEmpty
                               ? 'Add your first customer using the + button'
                               : 'Try a different search term',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withOpacity(0.5),
-                              ),
-                        ),
-                      ],
-                    ),
-                  )
-                : _currentViewMode == ViewMode.table
-                ? _buildTableView()
-                : _buildCardView(),
-          ),
-        ],
-      ),
+                          showClearSearchAction: _customers.isNotEmpty,
+                          onClearSearch: _customers.isNotEmpty
+                              ? () {
+                                  _searchController.clear();
+                                  _filterCustomers('');
+                                }
+                              : null,
+                        )
+                      : _buildCardView(),
+                ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton(
         heroTag: "customer_master_fab",
         onPressed: () => _showAddCustomerDialog(),
@@ -857,46 +811,6 @@ class _CustomerMasterPageState extends State<CustomerMasterPage> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildFilterChip(String label, String value) {
-    final isSelected = _filterBy == value;
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) => _changeFilterBy(value),
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-      selectedColor: Theme.of(context).colorScheme.primaryContainer,
-      checkmarkColor: Theme.of(context).colorScheme.onPrimaryContainer,
-    );
-  }
-
-  Widget _buildSortChip(String label, String value) {
-    final isSelected = _sortBy == value;
-    return ActionChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label),
-          if (isSelected) ...[
-            const SizedBox(width: 4),
-            Icon(
-              _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
-              size: 16,
-            ),
-          ],
-        ],
-      ),
-      onPressed: () => _changeSortOrder(value),
-      backgroundColor: isSelected
-          ? Theme.of(context).colorScheme.primaryContainer
-          : Theme.of(context).colorScheme.surfaceContainerLow,
-      labelStyle: TextStyle(
-        color: isSelected
-            ? Theme.of(context).colorScheme.onPrimaryContainer
-            : Theme.of(context).colorScheme.onSurface,
-      ),
     );
   }
 }

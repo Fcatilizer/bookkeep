@@ -5,6 +5,9 @@ import '../services/csv_export_service.dart';
 import '../helpers/customer_event_dialog.dart';
 import '../helpers/event_dialog.dart';
 import '../helpers/export_preview_dialog.dart';
+import '../widgets/standardized_page_header.dart';
+import '../widgets/standardized_search_filter.dart';
+import '../widgets/standardized_common_widgets.dart';
 
 enum ViewMode { card, table }
 
@@ -560,426 +563,388 @@ class _CustomerEventsPageState extends State<CustomerEventsPage> {
   }
 
   Widget _buildTableView() {
-    return Scrollbar(
-      controller: _horizontalScrollController,
-      thumbVisibility: true,
-      child: SingleChildScrollView(
-        controller: _horizontalScrollController,
-        scrollDirection: Axis.horizontal,
-        child: Scrollbar(
-          controller: _verticalScrollController,
-          thumbVisibility: true,
-          child: SingleChildScrollView(
+    return Column(
+      children: [
+        Expanded(
+          child: Scrollbar(
             controller: _verticalScrollController,
-            scrollDirection: Axis.vertical,
-            child: DataTable(
-              columnSpacing: 16,
-              headingRowHeight: 48,
-              dataRowHeight: 48,
-              columns: const [
-                DataColumn(
-                  label: Text(
-                    'Event No',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              controller: _verticalScrollController,
+              scrollDirection: Axis.vertical,
+              child: DataTable(
+                columnSpacing: 16,
+                headingRowHeight: 48,
+                dataRowHeight: 48,
+                columns: const [
+                  DataColumn(
+                    label: Text(
+                      'Event No',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Event Name',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Event Name',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Customer',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Customer',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Product ID',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Product ID',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Quantity',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Quantity',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Event Date',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Event Date',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Expected Finish',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Expected Finish',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Agreed Amount',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Agreed Amount',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Total Daily',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Total Daily',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Remaining',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Remaining',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Status',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                  DataColumn(
+                    label: Text(
+                      'Status',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                ),
-              ],
-              rows: _filteredEventsWithTotals.map((eventData) {
-                final event = CustomerEvent.fromMap(eventData);
-                final dailyTotalRaw = eventData['daily_total'];
-                final dailyTotal = (dailyTotalRaw is int)
-                    ? dailyTotalRaw.toDouble()
-                    : (dailyTotalRaw as double? ?? 0.0);
+                ],
+                rows: _filteredEventsWithTotals.map((eventData) {
+                  final event = CustomerEvent.fromMap(eventData);
+                  final dailyTotalRaw = eventData['daily_total'];
+                  final dailyTotal = (dailyTotalRaw is int)
+                      ? dailyTotalRaw.toDouble()
+                      : (dailyTotalRaw as double? ?? 0.0);
 
-                final remainingAmount = event.agreedAmount - dailyTotal;
-                final isOverBudget = dailyTotal > event.agreedAmount;
+                  final remainingAmount = event.agreedAmount - dailyTotal;
+                  final isOverBudget = dailyTotal > event.agreedAmount;
 
-                // Determine status color
-                Color statusColor;
-                switch (event.status.toLowerCase()) {
-                  case 'active':
-                    statusColor = Colors.green;
-                    break;
-                  case 'completed':
-                    statusColor = Colors.blue;
-                    break;
-                  case 'cancelled':
-                    statusColor = Colors.red;
-                    break;
-                  default:
-                    statusColor = Colors.grey;
-                }
+                  // Determine status color
+                  Color statusColor;
+                  switch (event.status.toLowerCase()) {
+                    case 'active':
+                      statusColor = Colors.green;
+                      break;
+                    case 'completed':
+                      statusColor = Colors.blue;
+                      break;
+                    case 'cancelled':
+                      statusColor = Colors.red;
+                      break;
+                    default:
+                      statusColor = Colors.grey;
+                  }
 
-                return DataRow(
-                  cells: [
-                    DataCell(Text(event.eventNo)),
-                    DataCell(
-                      SizedBox(
-                        width: 120,
-                        child: Text(
-                          event.eventName,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      SizedBox(
-                        width: 100,
-                        child: Text(
-                          event.customerName,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                    DataCell(Text(event.productId)),
-                    DataCell(Text(event.quantity.toString())),
-                    DataCell(
-                      Text(
-                        event.eventDate?.toLocal().toString().split(' ')[0] ??
-                            'N/A',
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        event.expectedFinishingDate?.toLocal().toString().split(
-                              ' ',
-                            )[0] ??
-                            'N/A',
-                      ),
-                    ),
-                    DataCell(Text('₹${event.agreedAmount.toStringAsFixed(2)}')),
-                    DataCell(
-                      Text(
-                        '₹${dailyTotal.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          color: dailyTotal > event.agreedAmount
-                              ? Colors.red
-                              : Colors.green,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Text(
-                        '₹${remainingAmount.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          color: isOverBudget
-                              ? Colors
-                                    .red // Loss (over budget)
-                              : remainingAmount > 0
-                              ? Colors
-                                    .green // Profit (under budget)
-                              : Colors.white, // Normal (exact budget)
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    DataCell(
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: statusColor),
-                        ),
-                        child: Text(
-                          event.status.toUpperCase(),
-                          style: TextStyle(
-                            color: statusColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(event.eventNo)),
+                      DataCell(
+                        SizedBox(
+                          width: 120,
+                          child: Text(
+                            event.eventName,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              }).toList(),
-            ), // closes DataTable
-          ), // closes inner SingleChildScrollView
-        ), // closes inner Scrollbar
-      ), // closes outer SingleChildScrollView
-    ); // closes outer Scrollbar
+                      DataCell(
+                        SizedBox(
+                          width: 100,
+                          child: Text(
+                            event.customerName,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      DataCell(Text(event.productId)),
+                      DataCell(Text(event.quantity.toString())),
+                      DataCell(
+                        Text(
+                          event.eventDate?.toLocal().toString().split(' ')[0] ??
+                              'N/A',
+                        ),
+                      ),
+                      DataCell(
+                        Text(
+                          event.expectedFinishingDate
+                                  ?.toLocal()
+                                  .toString()
+                                  .split(' ')[0] ??
+                              'N/A',
+                        ),
+                      ),
+                      DataCell(
+                        Text('₹${event.agreedAmount.toStringAsFixed(2)}'),
+                      ),
+                      DataCell(
+                        Text(
+                          '₹${dailyTotal.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: dailyTotal > event.agreedAmount
+                                ? Colors.red
+                                : Colors.green,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Text(
+                          '₹${remainingAmount.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            color: isOverBudget
+                                ? Colors
+                                      .red // Loss (over budget)
+                                : remainingAmount > 0
+                                ? Colors
+                                      .green // Profit (under budget)
+                                : Colors.white, // Normal (exact budget)
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      DataCell(
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: statusColor),
+                          ),
+                          child: Text(
+                            event.status.toUpperCase(),
+                            style: TextStyle(
+                              color: statusColor,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ), // closes DataTable
+            ), // closes vertical SingleChildScrollView
+          ), // closes vertical Scrollbar
+        ), // closes Expanded
+      ], // closes Column children
+    ); // closes Column
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          // View Mode and Controls
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Text(
-                  'View:',
-                  style: Theme.of(
+      body: _currentViewMode == ViewMode.table
+          ? Scrollbar(
+              controller: _horizontalScrollController,
+              scrollbarOrientation: ScrollbarOrientation.bottom,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: _horizontalScrollController,
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: MediaQuery.of(
                     context,
-                  ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
+                  ).size.width.clamp(800.0, double.infinity),
+                  child: Column(
+                    children: [
+                      // Standardized Header
+                      StandardizedPageHeader(
+                        showViewToggle: true,
+                        selectedViewIndex: _currentViewMode == ViewMode.card
+                            ? 0
+                            : 1,
+                        onViewChanged: (int index) {
+                          setState(() {
+                            _currentViewMode = index == 0
+                                ? ViewMode.card
+                                : ViewMode.table;
+                          });
+                        },
+                        onRefresh: _loadCustomerEvents,
+                        onAdd: () async {
+                          CustomerEventDialog.showAddCustomerEventDialog(
+                            context,
+                          );
+                          // Refresh the list after dialog is dismissed
+                          await Future.delayed(
+                            const Duration(milliseconds: 500),
+                          );
+                          _loadCustomerEvents();
+                        },
+                        addButtonLabel: 'Add Customer Event',
+                        addButtonIcon: Icons.add,
+                        showExportButton: _currentViewMode == ViewMode.table,
+                        onExport: _currentViewMode == ViewMode.table
+                            ? _exportToCSV
+                            : null,
+                        exportButtonLabel: 'Export CSV',
+                        exportButtonColor: Colors.green,
+                      ),
+                      // Standardized Search and Filter
+                      StandardizedSearchFilter(
+                        searchController: _searchController,
+                        onSearchChanged: _filterEvents,
+                        searchHint: 'Search customer events...',
+                        filterOptions: const [
+                          FilterOption(label: 'All', value: 'all'),
+                          FilterOption(label: 'Ongoing', value: 'ongoing'),
+                          FilterOption(label: 'Completed', value: 'completed'),
+                          FilterOption(
+                            label: 'Over Budget',
+                            value: 'overBudget',
+                          ),
+                        ],
+                        selectedFilter: _filterBy,
+                        onFilterChanged: _changeFilterBy,
+                        sortOptions: const [
+                          SortOption(label: 'Customer', value: 'customerName'),
+                          SortOption(label: 'Amount', value: 'agreedAmount'),
+                          SortOption(label: 'Total', value: 'dailyTotal'),
+                          SortOption(label: 'Date', value: 'eventDate'),
+                        ],
+                        selectedSort: _sortBy,
+                        sortAscending: _sortAscending,
+                        onSortChanged: _changeSortOrder,
+                      ),
+                      // Main content
+                      Expanded(
+                        child: _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : _filteredEventsWithTotals.isEmpty
+                            ? StandardizedEmptyState(
+                                icon: Icons.work_outline,
+                                title:
+                                    'No customer events found.\nTap + to add your first customer event!',
+                              )
+                            : RefreshIndicator(
+                                onRefresh: _loadCustomerEvents,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: _buildTableView(),
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
-                // View mode toggle buttons
-                ToggleButtons(
-                  children: [
-                    Icon(Icons.view_list, size: 18),
-                    Icon(Icons.table_chart, size: 18),
-                  ],
-                  isSelected: [
-                    _currentViewMode == ViewMode.card,
-                    _currentViewMode == ViewMode.table,
-                  ],
-                  onPressed: (int index) {
+              ),
+            )
+          : Column(
+              children: [
+                // Standardized Header
+                StandardizedPageHeader(
+                  showViewToggle: true,
+                  selectedViewIndex: _currentViewMode == ViewMode.card ? 0 : 1,
+                  onViewChanged: (int index) {
                     setState(() {
                       _currentViewMode = index == 0
                           ? ViewMode.card
                           : ViewMode.table;
                     });
                   },
-                  borderRadius: BorderRadius.circular(8),
-                  constraints: BoxConstraints(minWidth: 35, minHeight: 35),
-                ),
-                const Spacer(),
-                if (_currentViewMode == ViewMode.table)
-                  ElevatedButton.icon(
-                    onPressed: _exportToCSV,
-                    icon: const Icon(Icons.download, size: 18),
-                    label: const Text('Export CSV'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                if (_currentViewMode == ViewMode.table)
-                  const SizedBox(width: 8),
-                IconButton(
-                  onPressed: _loadCustomerEvents,
-                  icon: const Icon(Icons.refresh),
-                  tooltip: 'Refresh',
-                ),
-                ElevatedButton.icon(
-                  onPressed: () async {
+                  onRefresh: _loadCustomerEvents,
+                  onAdd: () async {
                     CustomerEventDialog.showAddCustomerEventDialog(context);
                     // Refresh the list after dialog is dismissed
                     await Future.delayed(const Duration(milliseconds: 500));
                     _loadCustomerEvents();
                   },
-                  icon: Icon(Icons.add, size: 18),
-                  label: Text('Add Customer Event'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6FAADB),
-                    foregroundColor: Colors.white,
-                  ),
+                  addButtonLabel: 'Add Customer Event',
+                  addButtonIcon: Icons.add,
+                  showExportButton: _currentViewMode == ViewMode.table,
+                  onExport: _currentViewMode == ViewMode.table
+                      ? _exportToCSV
+                      : null,
+                  exportButtonLabel: 'Export CSV',
+                  exportButtonColor: Colors.green,
                 ),
-              ],
-            ),
-          ),
-          // Search and Filter Controls
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                const SizedBox(height: 16),
-                // Search bar
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    labelText: 'Search customer events...',
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            onPressed: () {
-                              _searchController.clear();
-                              _filterEvents('');
-                            },
-                            icon: const Icon(Icons.clear),
-                          )
-                        : null,
-                    border: const OutlineInputBorder(),
-                    filled: true,
-                    fillColor: Theme.of(context).colorScheme.surface,
-                  ),
-                  onChanged: _filterEvents,
-                ),
-                const SizedBox(height: 16),
-                // Filter and Sort Controls
-                Row(
-                  children: [
-                    // Filter dropdown
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Filter by:',
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Wrap(
-                            spacing: 8,
-                            children: [
-                              _buildFilterChip('All', 'all'),
-                              _buildFilterChip('Ongoing', 'ongoing'),
-                              _buildFilterChip('Completed', 'completed'),
-                              _buildFilterChip('Over Budget', 'overBudget'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Sort controls
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Sort by:',
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                          const SizedBox(height: 4),
-                          Wrap(
-                            spacing: 8,
-                            children: [
-                              _buildSortChip('Customer', 'customerName'),
-                              _buildSortChip('Amount', 'agreedAmount'),
-                              _buildSortChip('Total', 'dailyTotal'),
-                              _buildSortChip('Date', 'eventDate'),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                // Standardized Search and Filter
+                StandardizedSearchFilter(
+                  searchController: _searchController,
+                  onSearchChanged: _filterEvents,
+                  searchHint: 'Search customer events...',
+                  filterOptions: const [
+                    FilterOption(label: 'All', value: 'all'),
+                    FilterOption(label: 'Ongoing', value: 'ongoing'),
+                    FilterOption(label: 'Completed', value: 'completed'),
+                    FilterOption(label: 'Over Budget', value: 'overBudget'),
                   ],
+                  selectedFilter: _filterBy,
+                  onFilterChanged: _changeFilterBy,
+                  sortOptions: const [
+                    SortOption(label: 'Customer', value: 'customerName'),
+                    SortOption(label: 'Amount', value: 'agreedAmount'),
+                    SortOption(label: 'Total', value: 'dailyTotal'),
+                    SortOption(label: 'Date', value: 'eventDate'),
+                  ],
+                  selectedSort: _sortBy,
+                  sortAscending: _sortAscending,
+                  onSortChanged: _changeSortOrder,
                 ),
-                const SizedBox(height: 16),
+                // Main content
+                Expanded(
+                  child: _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _filteredEventsWithTotals.isEmpty
+                      ? StandardizedEmptyState(
+                          icon: Icons.work_outline,
+                          title:
+                              'No customer events found.\nTap + to add your first customer event!',
+                        )
+                      : RefreshIndicator(
+                          onRefresh: _loadCustomerEvents,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: _filteredEventsWithTotals.length,
+                            itemBuilder: (context, index) {
+                              return _buildEventCard(
+                                _filteredEventsWithTotals[index],
+                              );
+                            },
+                          ),
+                        ),
+                ),
               ],
             ),
-          ),
-          // Main content
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : _filteredEventsWithTotals.isEmpty
-                ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.work_outline,
-                          size: 64,
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No customer events found.\nTap + to add your first customer event!',
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurfaceVariant,
-                              ),
-                        ),
-                      ],
-                    ),
-                  )
-                : _currentViewMode == ViewMode.card
-                ? RefreshIndicator(
-                    onRefresh: _loadCustomerEvents,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _filteredEventsWithTotals.length,
-                      itemBuilder: (context, index) {
-                        return _buildEventCard(
-                          _filteredEventsWithTotals[index],
-                        );
-                      },
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: _loadCustomerEvents,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: _buildTableView(),
-                    ),
-                  ),
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         heroTag: "customer_events_fab",
         onPressed: () async {
@@ -990,46 +955,6 @@ class _CustomerEventsPageState extends State<CustomerEventsPage> {
         },
         tooltip: 'Add Customer Event',
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, String value) {
-    final isSelected = _filterBy == value;
-    return FilterChip(
-      label: Text(label),
-      selected: isSelected,
-      onSelected: (selected) => _changeFilterBy(value),
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerLow,
-      selectedColor: Theme.of(context).colorScheme.primaryContainer,
-      checkmarkColor: Theme.of(context).colorScheme.onPrimaryContainer,
-    );
-  }
-
-  Widget _buildSortChip(String label, String value) {
-    final isSelected = _sortBy == value;
-    return ActionChip(
-      label: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(label),
-          if (isSelected) ...[
-            const SizedBox(width: 4),
-            Icon(
-              _sortAscending ? Icons.arrow_upward : Icons.arrow_downward,
-              size: 16,
-            ),
-          ],
-        ],
-      ),
-      onPressed: () => _changeSortOrder(value),
-      backgroundColor: isSelected
-          ? Theme.of(context).colorScheme.primaryContainer
-          : Theme.of(context).colorScheme.surfaceContainerLow,
-      labelStyle: TextStyle(
-        color: isSelected
-            ? Theme.of(context).colorScheme.onPrimaryContainer
-            : Theme.of(context).colorScheme.onSurface,
       ),
     );
   }
