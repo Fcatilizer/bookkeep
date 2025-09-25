@@ -393,7 +393,9 @@ class _ExpenseMasterPageState extends State<ExpenseMasterPage>
     // Apply payment mode filter
     if (_paymentsPaymentModeFilter != 'All') {
       filtered = filtered.where((payment) {
-        return payment.paymentType == _paymentsPaymentModeFilter.toLowerCase();
+        // Compare using display names for consistency
+        return Payment.getPaymentTypeDisplayName(payment.paymentType) ==
+            _paymentsPaymentModeFilter;
       }).toList();
     }
 

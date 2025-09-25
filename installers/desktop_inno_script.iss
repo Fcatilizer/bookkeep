@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "BookKeep"
-#define MyAppVersion "1.5"
+#define MyAppVersion "2"
 #define MyAppPublisher "A3"
 #define MyAppURL "https://www.a3group.co.in/"
 #define MyAppExeName "bookkeep.exe"
