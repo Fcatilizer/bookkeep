@@ -342,7 +342,7 @@ class _ExportPreviewDialogState extends State<ExportPreviewDialog>
 
                     if (_dailyEvents.isNotEmpty) ...[
                       Text(
-                        'Daily Activity Breakdown',
+                        'Expense Breakdown',
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(
                               fontWeight: FontWeight.bold,

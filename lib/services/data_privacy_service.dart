@@ -17,6 +17,9 @@ class DataPrivacyService {
       final products = await db.query('products');
       final customerEvents = await db.query('customer_events');
       final dailyEvents = await db.query('daily_events');
+      final payments = await db.query('payments');
+      final expenseTypes = await db.query('expense_types');
+      final paymentModes = await db.query('payment_modes');
 
       // Create backup data structure
       final backupData = {
@@ -27,6 +30,9 @@ class DataPrivacyService {
           'products': products,
           'customer_events': customerEvents,
           'daily_events': dailyEvents,
+          'payments': payments,
+          'expense_types': expenseTypes,
+          'payment_modes': paymentModes,
         },
       };
 
@@ -92,10 +98,13 @@ class DataPrivacyService {
       // Clear existing data and restore from backup
       await db.transaction((txn) async {
         // Delete all existing data (in order due to foreign key constraints)
+        await txn.delete('payments');
         await txn.delete('daily_events');
         await txn.delete('customer_events');
         await txn.delete('products');
         await txn.delete('customers');
+        await txn.delete('expense_types');
+        await txn.delete('payment_modes');
 
         // Restore customers
         if (tables.containsKey('customers')) {
@@ -131,6 +140,36 @@ class DataPrivacyService {
             await txn.insert('daily_events', Map<String, dynamic>.from(event));
           }
         }
+
+        // Restore expense_types
+        if (tables.containsKey('expense_types')) {
+          final expenseTypes = tables['expense_types'] as List<dynamic>;
+          for (final expenseType in expenseTypes) {
+            await txn.insert(
+              'expense_types',
+              Map<String, dynamic>.from(expenseType),
+            );
+          }
+        }
+
+        // Restore payment_modes
+        if (tables.containsKey('payment_modes')) {
+          final paymentModes = tables['payment_modes'] as List<dynamic>;
+          for (final paymentMode in paymentModes) {
+            await txn.insert(
+              'payment_modes',
+              Map<String, dynamic>.from(paymentMode),
+            );
+          }
+        }
+
+        // Restore payments
+        if (tables.containsKey('payments')) {
+          final payments = tables['payments'] as List<dynamic>;
+          for (final payment in payments) {
+            await txn.insert('payments', Map<String, dynamic>.from(payment));
+          }
+        }
       });
     } catch (e) {
       throw Exception('Failed to restore database: $e');
@@ -144,10 +183,13 @@ class DataPrivacyService {
 
       // Delete all data in order due to foreign key constraints
       await db.transaction((txn) async {
+        await txn.delete('payments');
         await txn.delete('daily_events');
         await txn.delete('customer_events');
         await txn.delete('products');
         await txn.delete('customers');
+        await txn.delete('expense_types');
+        await txn.delete('payment_modes');
       });
     } catch (e) {
       throw Exception('Failed to wipe database: $e');
@@ -178,11 +220,29 @@ class DataPrivacyService {
       );
       final dailyEventCount = dailyEventResult.first.values.first as int? ?? 0;
 
+      final paymentsResult = await db.rawQuery('SELECT COUNT(*) FROM payments');
+      final paymentsCount = paymentsResult.first.values.first as int? ?? 0;
+
+      final expenseTypesResult = await db.rawQuery(
+        'SELECT COUNT(*) FROM expense_types',
+      );
+      final expenseTypesCount =
+          expenseTypesResult.first.values.first as int? ?? 0;
+
+      final paymentModesResult = await db.rawQuery(
+        'SELECT COUNT(*) FROM payment_modes',
+      );
+      final paymentModesCount =
+          paymentModesResult.first.values.first as int? ?? 0;
+
       return {
         'customers': customerCount,
         'products': productCount,
         'customer_events': customerEventCount,
         'daily_events': dailyEventCount,
+        'payments': paymentsCount,
+        'expense_types': expenseTypesCount,
+        'payment_modes': paymentModesCount,
       };
     } catch (e) {
       return {
@@ -190,6 +250,9 @@ class DataPrivacyService {
         'products': 0,
         'customer_events': 0,
         'daily_events': 0,
+        'payments': 0,
+        'expense_types': 0,
+        'payment_modes': 0,
       };
     }
   }
