@@ -75,9 +75,13 @@ class ExampleClass {
 #### **Services** (`lib/services/`)
 
 - ✅ **payment_service.dart** - Business logic for payment operations with CRUD, validation, and calculations
+- ✅ **data_privacy_service.dart** - Database backup, restore, and privacy operations with comprehensive table handling
 - ⚡ **expense_type_service.dart** - Expense type management service (enhanced documentation added)
 - ⚡ **customer_event_service.dart** - Event management business logic (enhanced documentation added)
+- ⚡ **customer_service.dart** - Customer management operations (enhanced documentation added)
 - ⚡ **payment_summary_service.dart** - Payment aggregation and reporting (enhanced documentation added)
+- ⚡ **theme_service.dart** - Application theming management (enhanced documentation added)
+- ⚡ **settings_service.dart** - Application configuration management (enhanced documentation added)
 
 #### **Database** (`lib/helpers/database_helper.dart`)
 
@@ -86,8 +90,11 @@ class ExampleClass {
 #### **UI Pages** (`lib/pages/`)
 
 - ✅ **expense_master.dart** - Main expense management interface with comprehensive inline documentation
+- ✅ **data_privacy_page.dart** - Database backup, restore, and privacy management interface
 - ⚡ **dashboard.dart** - Application overview page (documentation enhanced)
 - ⚡ **customer_master.dart** - Customer management interface (documentation enhanced)
+- ⚡ **settings.dart** - Application settings and configuration page (documentation enhanced)
+- ⚡ **about_page.dart** - Application information and credits page (documentation enhanced)
 
 #### **Main Application** (`lib/main.dart`)
 

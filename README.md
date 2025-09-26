@@ -7,6 +7,7 @@
 A comprehensive Flutter application for managing expenses, payments, customer events, and financial tracking. Built with clean architecture and modern UI/UX principles.
 
 ## Screenshots
+
 ![App Screenshot](lib/Screenshots/Screenshot%202025-09-24%20090812.png)
 
 ## 🚀 Features
@@ -46,6 +47,16 @@ A comprehensive Flutter application for managing expenses, payments, customer ev
   - Runs on Android, iOS, Web, Desktop (Windows, macOS, Linux)
   - Platform-specific optimizations and integrations
   - Linux desktop integration with proper GTK icon support
+
+### 🔐 Data Privacy & Backup Features
+
+- **Complete Database Backup**: Export all data including payments, customers, events, expense types, and payment modes
+- **JSON Format**: Human-readable backup files with .bookkeep extension
+- **Full Data Restoration**: Restore complete database from backup files with proper foreign key handling
+- **Database Statistics**: View comprehensive data counts across all tables
+- **Data Wiping**: Secure database clearing with confirmation dialogs
+- **Cross-platform File Management**: Seamless backup/restore across Windows, macOS, and Linux
+- **Data Integrity**: Proper foreign key constraint handling during restore operations
 
 ### 📈 Data Visualization & Navigation
 
@@ -94,14 +105,31 @@ lib/
 │   ├── payment_summary.dart
 │   └── payment.dart
 ├── pages/                  # UI pages/screens
-│   └── expense_master.dart
+│   ├── about_page.dart
+│   ├── account_details.dart
+│   ├── appearance_page.dart
+│   ├── customer_events.dart
+│   ├── customer_master.dart
+│   ├── daily_events.dart
+│   ├── dashboard.dart
+│   ├── data_privacy_page.dart
+│   ├── expense_master.dart
+│   ├── product.dart
+│   └── settings.dart
 ├── services/               # Business logic & data services
 │   ├── csv_export_service.dart
 │   ├── customer_event_service.dart
+│   ├── customer_service.dart
+│   ├── data_privacy_service.dart
+│   ├── event_service.dart
 │   ├── expense_type_service.dart
+│   ├── export_service.dart
 │   ├── payment_mode_service.dart
 │   ├── payment_service.dart
-│   └── payment_summary_service.dart
+│   ├── payment_summary_service.dart
+│   ├── product_service.dart
+│   ├── settings_service.dart
+│   └── theme_service.dart
 ├── main.dart              # Application entry point
 └── reset_database.dart    # Database reset utility
 ```
@@ -225,6 +253,15 @@ flutter build linux --release
 - **Status Tracking**: Monitor payment completion status
 - **Responsive Design**: Optimized for both mobile and desktop use
 
+### Data Privacy & Settings
+
+1. **Database Backup**: Create comprehensive JSON backups including all tables
+2. **Database Restore**: Restore from .bookkeep backup files with data validation
+3. **Database Statistics**: View record counts across all data tables
+4. **Database Wiping**: Securely clear all data with confirmation dialogs
+5. **Theme Management**: Switch between light and dark themes with persistence
+6. **Settings Configuration**: Manage application preferences and configurations
+
 ## 🤝 Contributing
 
 We welcome contributions! I'm also learning with AI and making mistakes. This project was build to help my own needs. Please add suggestions or improvements.
@@ -279,7 +316,11 @@ Please follow these guidelines:
 - **PaymentService**: CRUD operations for payments
 - **ExpenseTypeService**: Expense type management
 - **CustomerEventService**: Customer event operations
+- **CustomerService**: Customer management operations
+- **DataPrivacyService**: Database backup, restore, and privacy operations
 - **CsvExportService**: Data export functionality
+- **ThemeService**: Application theme management
+- **SettingsService**: Application configuration management
 
 ## 🐛 Known Issues & Limitations
 
@@ -298,6 +339,9 @@ Please follow these guidelines:
 - **About Page Redesign**: Configurable content system with icon-based design
 - **Linux Integration**: Proper GTK desktop environment support
 - **Package Optimization**: Professional branding with com.ashish.bookkeep identifier
+- **Data Privacy Enhancements**: Complete backup/restore system with all 7 database tables
+- **Database Integrity**: Fixed backup operations to include payments, expense_types, and payment_modes tables
+- **Comprehensive Data Management**: Enhanced data privacy service with proper foreign key handling
 
 ### Version 1.1.0 (August 2025)
 

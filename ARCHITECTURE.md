@@ -32,9 +32,13 @@ BookKeep follows a clean architecture pattern with clear separation of concerns,
   - `payment_service.dart` - Payment operations and calculations
   - `expense_type_service.dart` - Expense category management
   - `customer_event_service.dart` - Event/project business logic
+  - `customer_service.dart` - Customer management operations
+  - `data_privacy_service.dart` - Database backup, restore, and privacy operations
   - `payment_summary_service.dart` - Payment aggregation and reporting
   - `csv_export_service.dart` - Data export functionality
+  - `export_service.dart` - General export functionality
   - `theme_service.dart` - Application theming management
+  - `settings_service.dart` - Application configuration management
 
 **Business Rules**:
 
@@ -114,6 +118,10 @@ payments (payment_id, customer_event_no, paying_person_name, payment_type,
 
 -- Expense categories
 expense_types (expense_type_id, expense_type_name, category, description,
+              is_active, created_at, updated_at)
+
+-- Payment mode configurations
+payment_modes (payment_mode_id, payment_mode_name, description,
               is_active, created_at, updated_at)
 
 -- Daily expense tracking
