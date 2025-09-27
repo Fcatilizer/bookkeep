@@ -412,31 +412,41 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
                   borderRadius: BorderRadius.circular(8),
                   constraints: BoxConstraints(minWidth: 35, minHeight: 35),
                 ),
-                const Spacer(),
-                if (_currentViewMode == ViewMode.table) ...[
-                  IconButton(
-                    onPressed: _exportToCSV,
-                    icon: Icon(Icons.download, size: 18),
-                    tooltip: 'Export to CSV',
-                    style: IconButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                ],
-                IconButton(
-                  onPressed: _loadProducts,
-                  icon: const Icon(Icons.refresh),
-                  tooltip: 'Refresh',
-                ),
-                ElevatedButton.icon(
-                  onPressed: () => _showAddProductDialog(),
-                  icon: Icon(Icons.add, size: 18),
-                  label: Text('Add Product'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6FAADB),
-                    foregroundColor: Colors.white,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (_currentViewMode == ViewMode.table) ...[
+                        IconButton(
+                          onPressed: _exportToCSV,
+                          icon: Icon(Icons.download, size: 18),
+                          tooltip: 'Export to CSV',
+                          style: IconButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                      ],
+                      IconButton(
+                        onPressed: _loadProducts,
+                        icon: const Icon(Icons.refresh),
+                        tooltip: 'Refresh',
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _showAddProductDialog(),
+                          icon: Icon(Icons.add, size: 18),
+                          label: Text('Add Product'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF6FAADB),
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -529,6 +539,7 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           ),

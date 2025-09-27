@@ -61,7 +61,7 @@ class EventDialog {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Add New Daily Activity'),
+          title: const Text('Add New Daily Expense'),
           content: SingleChildScrollView(
             child: SizedBox(
               width: MediaQuery.of(context).size.width * 0.9,

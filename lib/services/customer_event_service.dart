@@ -185,7 +185,7 @@ class CustomerEventService {
     }
   }
 
-  // Get customer events with daily activity totals
+  // Get customer events with daily expense totals
   Future<List<Map<String, dynamic>>> getCustomerEventsWithTotals() async {
     try {
       final db = await _databaseHelper.database;
@@ -205,7 +205,7 @@ class CustomerEventService {
     }
   }
 
-  // Get daily activity for a specific customer event
+  // Get daily expense for a specific customer event
   Future<List<Map<String, dynamic>>> getDailyEventsForCustomerEvent(
     String customerEventNo,
   ) async {
@@ -227,7 +227,7 @@ class CustomerEventService {
       );
       return result;
     } catch (e) {
-      print('Error getting daily activity for customer event: $e');
+      print('Error getting daily expense for customer event: $e');
       return [];
     }
   }

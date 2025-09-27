@@ -147,7 +147,7 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
       case 2:
         return const ProductMasterPage();
       case 3:
-        return const DailyEventsPage();
+        return const DailyExpensePage();
       case 4:
         return const CustomerEventsPage();
       case 5:
@@ -168,7 +168,7 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
       case 2:
         return 'Products';
       case 3:
-        return 'Daily Activity';
+        return 'Daily Expense';
       case 4:
         return 'Customer Events';
       case 5:
@@ -308,7 +308,7 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
                             : null,
                       ),
                       title: Text(
-                        'Daily Activity',
+                        'Daily Expense',
                         style: TextStyle(
                           fontWeight: _selectedIndex == 3
                               ? FontWeight.bold
@@ -476,7 +476,7 @@ class _ResponsiveScaffoldState extends State<ResponsiveScaffold> {
           ),
           ListTile(
             leading: const Icon(Icons.event, color: Colors.indigo),
-            title: const Text('Update Daily Activity'),
+            title: const Text('Update Daily Expense'),
             onTap: () {
               Navigator.pop(context);
               EventDialog.showAddEventDialog(context);

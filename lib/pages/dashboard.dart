@@ -113,10 +113,10 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           ListTile(
             leading: const Icon(Icons.event),
-            title: const Text('Update Daily Activity'),
+            title: const Text('Update Daily Expense'),
             onTap: () {
               Navigator.pop(context);
-              // Handle Update Daily Activity
+              // Handle Update Daily Expense
             },
           ),
         ],
@@ -350,7 +350,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const DailyEventsPage(),
+                          builder: (context) => const DailyExpensePage(),
                         ),
                       );
                     }
@@ -590,7 +590,7 @@ class _DashboardPageState extends State<DashboardPage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const DailyEventsPage(),
+                              builder: (context) => const DailyExpensePage(),
                             ),
                           );
                         },

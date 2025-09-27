@@ -8,7 +8,39 @@ A comprehensive Flutter application for managing expenses, payments, customer ev
 
 ## Screenshots
 
-![App Screenshot](lib/Screenshots/Screenshot%202025-09-24%20090812.png)
+![### 📝 Changelog
+
+### Version 1.3.0 (Current - September 28, 2025)
+
+- **Daily Expense System Restructure**: Complete restructuring of Daily Activity to Daily Expense with enhanced functionality
+  - Renamed all "Daily Activity" references to "Daily Expense" across the application
+  - Enhanced daily expense dialog with improved layout and dropdown overflow fixes
+  - Added customer event information display in grouped expense views
+  - Implemented optional remarks field with smart default values
+  - Added customer event name display in format "Customer Name - Event Name"
+- **UI/UX Consistency Improvements**:
+  - Fixed RenderFlex overflow issues in product page button layouts
+  - Standardized spacing between filter sections and content across all pages
+  - Consistent 16px spacing implementation between search/filter controls and main content
+  - Responsive button layouts with Flexible/Expanded widgets to prevent overflow
+- **Enhanced User Experience**:
+  - Improved dropdown handling with Tooltip-based overflow prevention
+  - Auto-population of customer event data in daily expense forms
+  - Smart form validation with optional fields support
+  - Better visual consistency across customer master, product, daily events, and expense master pages
+
+### Version 1.2.0 (September 2025)
+
+- **Enhanced Search System**: Multi-criteria search across 5 different payment fields
+- **Desktop Experience**: Improved horizontal scrolling and mouse wheel support
+- **UI Theme Fixes**: Complete dark/light mode adaptation for all components
+- **Dashboard Improvements**: Enhanced navigation and Quick Actions panel
+- **About Page Redesign**: Configurable content system with icon-based design
+- **Linux Integration**: Proper GTK desktop environment support
+- **Package Optimization**: Professional branding with com.ashish.bookkeep identifier
+- **Data Privacy Enhancements**: Complete backup/restore system with all 7 database tables
+- **Database Integrity**: Fixed backup operations to include payments, expense_types, and payment_modes tables
+- **Comprehensive Data Management**: Enhanced data privacy service with proper foreign key handling](lib/Screenshots/Screenshot%202025-09-24%20090812.png)
 
 ## 🚀 Features
 
@@ -23,6 +55,15 @@ A comprehensive Flutter application for managing expenses, payments, customer ev
 - **Payment Status Tracking**: Pending, Partial, Full payment statuses with color-coded indicators
 - **Individual & Grouped Views**: Toggle between detailed individual payments and summarized grouped views
 - **Export Functionality**: Export payment data to CSV format with comprehensive data
+
+### 📊 Daily Expense Management
+
+- **Daily Expense Tracking**: Complete daily expense management system with customer event integration
+- **Enhanced Dialog Interface**: Improved daily expense dialog with dropdown overflow fixes and responsive layout
+- **Customer Event Integration**: Auto-populated customer and event information with "Customer Name - Event Name" display format
+- **Optional Remarks System**: Flexible remarks field with smart default values and validation
+- **Grouped View Enhancement**: Customer event names displayed in grouped expense views for better context
+- **UI Consistency**: Standardized spacing and responsive button layouts across all expense management pages
 
 ### 📊 Expense Types Management
 
@@ -89,6 +130,7 @@ lib/
 │   ├── customer_dialog.dart
 │   ├── customer_event_dialog.dart
 │   ├── customer_notifier.dart
+│   ├── daily_expense_dialog.dart
 │   ├── database_helper.dart
 │   ├── event_dialog.dart
 │   ├── expense_type_dialog.dart
@@ -110,7 +152,7 @@ lib/
 │   ├── appearance_page.dart
 │   ├── customer_events.dart
 │   ├── customer_master.dart
-│   ├── daily_events.dart
+│   ├── daily_events.dart      # Daily Expense Management (renamed from Daily Activity)
 │   ├── dashboard.dart
 │   ├── data_privacy_page.dart
 │   ├── expense_master.dart

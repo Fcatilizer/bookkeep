@@ -14,7 +14,7 @@ BookKeep follows a clean architecture pattern with clear separation of concerns,
   - `dashboard.dart` - Application overview and analytics
   - `customer_master.dart` - Customer management interface
   - `customer_events.dart` - Event/project management
-  - `daily_events.dart` - Daily expense tracking
+  - `daily_events.dart` - Daily Expense Management (enhanced with customer event integration and UI improvements)
   - `product.dart` - Product/service management
   - `settings.dart` - Application configuration
 
@@ -157,9 +157,11 @@ MaterialApp (main.dart)
 ### UI Design Principles
 
 - **Material 3 Design**: Modern, accessible, and consistent
-- **Responsive Layout**: Adapts to different screen sizes
+- **Responsive Layout**: Adapts to different screen sizes with flexible button layouts and overflow prevention
 - **Progressive Enhancement**: Advanced features for larger screens
 - **Accessibility**: Proper semantic structure and navigation
+- **Consistent Spacing**: Standardized 16px spacing between filter sections and content across all pages
+- **Overflow Prevention**: RenderFlex overflow fixes with Expanded/Flexible widgets for responsive design
 
 ## State Management
 

@@ -72,7 +72,7 @@ class _ExportPreviewDialogState extends State<ExportPreviewDialog>
       _phoneNumber = settings['phoneNumber'] ?? '';
       _gstNumber = settings['gstNumber'] ?? '';
 
-      // Load daily activity
+      // Load daily expense
       final dailyEvents = await _exportService.getDailyEventsForExport(
         widget.event.eventNo,
       );
@@ -401,7 +401,7 @@ class _ExportPreviewDialogState extends State<ExportPreviewDialog>
                       ),
                     ] else ...[
                       const Text(
-                        'No daily activity recorded',
+                        'No daily expense recorded',
                         style: TextStyle(fontStyle: FontStyle.italic),
                       ),
                       const SizedBox(height: 8),
@@ -577,7 +577,7 @@ class _ExportPreviewDialogState extends State<ExportPreviewDialog>
               if (_dailyEvents.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Text(
-                  'Daily Activity:',
+                  'Daily Expense:',
                   style: TextStyle(
                     color: Theme.of(context).brightness == Brightness.dark
                         ? Colors.white

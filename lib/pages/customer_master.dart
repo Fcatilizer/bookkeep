@@ -572,9 +572,8 @@ class _CustomerMasterPageState extends State<CustomerMasterPage> {
                         pluralLabel: 'customers',
                         icon: Icons.people,
                       ),
-                      // Divider
-                      const Divider(height: 1),
-                      const SizedBox(height: 8),
+                      // Spacing between filter and content
+                      const SizedBox(height: 16),
                       // Customer list
                       Expanded(
                         child: _isLoading
@@ -655,9 +654,8 @@ class _CustomerMasterPageState extends State<CustomerMasterPage> {
                   pluralLabel: 'customers',
                   icon: Icons.people,
                 ),
-                // Divider
-                const Divider(height: 1),
-                const SizedBox(height: 8),
+                // Spacing between filter and content
+                const SizedBox(height: 16),
                 // Customer list
                 Expanded(
                   child: _isLoading

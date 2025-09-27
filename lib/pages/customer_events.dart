@@ -392,7 +392,7 @@ class _CustomerEventsPageState extends State<CustomerEventsPage> {
 
                           if (snapshot.hasError) {
                             return Text(
-                              'Error loading daily activity: ${snapshot.error}',
+                              'Error loading daily expense: ${snapshot.error}',
                               style: TextStyle(color: Colors.red),
                             );
                           }
@@ -401,7 +401,7 @@ class _CustomerEventsPageState extends State<CustomerEventsPage> {
 
                           if (dailyEvents.isEmpty) {
                             return const Text(
-                              'No daily activity recorded yet',
+                              'No daily expense recorded yet',
                               style: TextStyle(fontStyle: FontStyle.italic),
                             );
                           }
@@ -410,7 +410,7 @@ class _CustomerEventsPageState extends State<CustomerEventsPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const Text(
-                                'Daily Activity:',
+                                'Daily Expense:',
                                 style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 4),

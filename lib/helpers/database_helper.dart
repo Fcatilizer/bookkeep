@@ -830,7 +830,7 @@ class DatabaseHelper {
     return result.isNotEmpty;
   }
 
-  // Get total daily activity amount for a customer event
+  // Get total daily expense amount for a customer event
   Future<double> getTotalDailyEventsForCustomerEvent(
     String customerEventNo,
   ) async {

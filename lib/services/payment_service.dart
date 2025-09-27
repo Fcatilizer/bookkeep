@@ -173,7 +173,7 @@ class PaymentService {
         (sum, payment) => sum + payment.amount,
       );
 
-      // Get total daily activity expenses for this event
+      // Get total daily expense expenses for this event
       final expenseResult = await db.rawQuery(
         'SELECT SUM(amount) as total_expenses FROM daily_events WHERE Customer_Event_No = ?',
         [customerEventNo],

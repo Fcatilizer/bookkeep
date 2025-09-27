@@ -156,10 +156,10 @@ class ExportService {
         .agreed-amount { color: #2196F3; }
         .spent-amount { color: ${isOverBudget ? '#f44336' : '#4CAF50'}; }
         .remaining-amount { color: ${isOverBudget ? '#f44336' : '#4CAF50'}; }
-        .daily-activity {
+        .daily-expense {
             margin: 20px 0;
         }
-        .daily-activity-title {
+        .daily-expense-title {
             font-size: 18px;
             font-weight: bold;
             color: #000;
@@ -273,8 +273,8 @@ class ExportService {
         '''}
 
         ${dailyEvents.isNotEmpty ? '''
-        <div class="daily-activity">
-            <div class="daily-activity-title">Expenses Breakdown</div>
+        <div class="daily-expense">
+            <div class="daily-expense-title">Expenses Breakdown</div>
             ${dailyEvents.map((dailyEvent) {
             final amount = (dailyEvent['Amount'] is int) ? (dailyEvent['Amount'] as int).toDouble() : (dailyEvent['Amount'] as double? ?? 0.0);
             return '''
@@ -285,7 +285,7 @@ class ExportService {
               ''';
           }).join('')}
         </div>
-        ''' : '<div class="daily-activity-title">No daily activity recorded</div>'}
+        ''' : '<div class="daily-expense-title">No daily expense recorded</div>'}
 
         <div class="divider"></div>
         
@@ -485,7 +485,7 @@ class ExportService {
 
     ${dailyEvents.isNotEmpty ? '''
     <div class="divider"></div>
-    <div style="text-align: center; font-weight: bold; margin: 5px 0;">DAILY ACTIVITY</div>
+    <div style="text-align: center; font-weight: bold; margin: 5px 0;">DAILY EXPENSE</div>
     ${dailyEvents.map((dailyEvent) {
             final amount = (dailyEvent['Amount'] is int) ? (dailyEvent['Amount'] as int).toDouble() : (dailyEvent['Amount'] as double? ?? 0.0);
             return '''
@@ -495,7 +495,7 @@ class ExportService {
       </div>
       ''';
           }).join('')}
-    ''' : '<div style="text-align: center; margin: 5px 0;">No daily activity</div>'}
+    ''' : '<div style="text-align: center; margin: 5px 0;">No daily expense</div>'}
 
     <div class="total-row">
         <div class="row">
@@ -517,7 +517,7 @@ class ExportService {
     ''';
   }
 
-  // Get daily activity for an event
+  // Get daily expense for an event
   Future<List<Map<String, dynamic>>> getDailyEventsForExport(
     String customerEventNo,
   ) async {
@@ -806,7 +806,7 @@ class ExportService {
                           ),
                         ] else ...[
                           pw.Text(
-                            'No daily activity recorded',
+                            'No daily expense recorded',
                             style: pw.TextStyle(
                               fontStyle: pw.FontStyle.italic,
                               color: PdfColors.black,
@@ -929,7 +929,7 @@ class ExportService {
                     if (dailyEvents.isNotEmpty) ...[
                       pw.SizedBox(height: 6),
                       pw.Text(
-                        'Daily Activity:',
+                        'Daily Expense:',
                         style: pw.TextStyle(
                           fontSize: 10,
                           fontWeight: pw.FontWeight.bold,

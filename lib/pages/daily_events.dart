@@ -1,32 +1,36 @@
 import 'package:flutter/material.dart';
 import '../models/event.dart';
+import '../models/customer_event.dart';
 import '../services/event_service.dart';
+import '../services/customer_event_service.dart';
 import '../services/csv_export_service.dart';
-import '../helpers/event_dialog.dart';
+import '../helpers/daily_expense_dialog.dart';
 
 enum ViewMode { card, table }
 
-class DailyEventsPage extends StatefulWidget {
-  const DailyEventsPage({super.key});
+class DailyExpensePage extends StatefulWidget {
+  const DailyExpensePage({super.key});
 
   @override
-  State<DailyEventsPage> createState() => _DailyEventsPageState();
+  State<DailyExpensePage> createState() => _DailyExpensePageState();
 }
 
-class _DailyEventsPageState extends State<DailyEventsPage> {
+class _DailyExpensePageState extends State<DailyExpensePage> {
   final EventService _eventService = EventService();
-  List<Event> _events = [];
-  List<Event> _filteredEvents = [];
-  Map<String, List<Event>> _groupedEvents = {};
+  final CustomerEventService _customerEventService = CustomerEventService();
+  List<Event> _expenses = [];
+  List<Event> _filteredExpenses = [];
+  Map<String, List<Event>> _groupedExpenses = {};
   Map<String, double> _customerTotals = {};
+  Map<String, CustomerEvent> _customerEvents = {};
   bool _isLoading = true;
   ViewMode _currentViewMode = ViewMode.card;
 
   // Search and filter state
   final TextEditingController _searchController = TextEditingController();
-  String _sortBy = 'date'; // date, customer, amount, product
-  bool _sortAscending = false; // Default to newest first for events
-  String _filterBy = 'all'; // all, customer, product, date
+  String _sortBy = 'date'; // date, customer, amount, expenseType
+  bool _sortAscending = false; // Default to newest first for expenses
+  String _filterBy = 'all'; // all, customer, expenseType, date
 
   // ScrollControllers for table view
   final ScrollController _horizontalScrollController = ScrollController();
@@ -35,7 +39,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
   @override
   void initState() {
     super.initState();
-    _loadEvents();
+    _loadExpenses();
   }
 
   @override
@@ -46,15 +50,29 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
     super.dispose();
   }
 
-  Future<void> _loadEvents() async {
+  Future<void> _loadCustomerEvents() async {
+    try {
+      final customerEventsList = await _customerEventService
+          .getAllCustomerEvents();
+      _customerEvents.clear();
+      for (final event in customerEventsList) {
+        _customerEvents[event.eventNo] = event;
+      }
+    } catch (e) {
+      // Handle error silently for now
+    }
+  }
+
+  Future<void> _loadExpenses() async {
     setState(() => _isLoading = true);
     try {
-      final events = await _eventService.getAllEvents();
-      _groupEventsByCustomer(events);
+      final expenses = await _eventService.getAllEvents();
+      await _loadCustomerEvents();
+      _groupExpensesByCustomer(expenses);
       setState(() {
-        _events = events;
-        _filteredEvents = List.from(events);
-        _sortEvents();
+        _expenses = expenses;
+        _filteredExpenses = List.from(expenses);
+        _sortExpenses();
         _isLoading = false;
       });
     } catch (e) {
@@ -62,59 +80,61 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error loading events: $e')));
+        ).showSnackBar(SnackBar(content: Text('Error loading expenses: $e')));
       }
     }
   }
 
-  void _groupEventsByCustomer(List<Event> events) {
-    _groupedEvents.clear();
+  void _groupExpensesByCustomer(List<Event> expenses) {
+    _groupedExpenses.clear();
     _customerTotals.clear();
 
-    for (final event in events) {
-      final custId = event.custId;
+    for (final expense in expenses) {
+      final custId = expense.custId;
 
-      if (!_groupedEvents.containsKey(custId)) {
-        _groupedEvents[custId] = [];
+      if (!_groupedExpenses.containsKey(custId)) {
+        _groupedExpenses[custId] = [];
         _customerTotals[custId] = 0.0;
       }
 
-      _groupedEvents[custId]!.add(event);
-      _customerTotals[custId] = _customerTotals[custId]! + event.amount;
+      _groupedExpenses[custId]!.add(expense);
+      _customerTotals[custId] = _customerTotals[custId]! + expense.amount;
     }
   }
 
-  void _filterEvents(String searchTerm) {
+  void _filterExpenses(String searchTerm) {
     setState(() {
       if (searchTerm.isEmpty) {
-        _filteredEvents = List.from(_events);
+        _filteredExpenses = List.from(_expenses);
       } else {
-        _filteredEvents = _events.where((event) {
+        _filteredExpenses = _expenses.where((expense) {
           final searchLower = searchTerm.toLowerCase();
 
           switch (_filterBy) {
             case 'customer':
-              return event.custId.toLowerCase().contains(searchLower) ||
-                  event.customerName.toLowerCase().contains(searchLower);
-            case 'product':
-              return event.productId.toLowerCase().contains(searchLower);
+              return expense.custId.toLowerCase().contains(searchLower) ||
+                  expense.customerName.toLowerCase().contains(searchLower);
+            case 'expenseType':
+              return expense.expenseType.toLowerCase().contains(searchLower);
             case 'all':
             default:
-              return event.custId.toLowerCase().contains(searchLower) ||
-                  event.customerName.toLowerCase().contains(searchLower) ||
-                  event.productId.toLowerCase().contains(searchLower) ||
-                  event.expenseName.toLowerCase().contains(searchLower) ||
-                  (event.eventDate?.toString().contains(searchLower) ?? false);
+              return expense.custId.toLowerCase().contains(searchLower) ||
+                  expense.customerName.toLowerCase().contains(searchLower) ||
+                  expense.productId.toLowerCase().contains(searchLower) ||
+                  expense.expenseType.toLowerCase().contains(searchLower) ||
+                  expense.expenseName.toLowerCase().contains(searchLower) ||
+                  (expense.eventDate?.toString().contains(searchLower) ??
+                      false);
           }
         }).toList();
       }
-      _sortEvents();
-      _groupEventsByCustomer(_filteredEvents);
+      _sortExpenses();
+      _groupExpensesByCustomer(_filteredExpenses);
     });
   }
 
-  void _sortEvents() {
-    _filteredEvents.sort((a, b) {
+  void _sortExpenses() {
+    _filteredExpenses.sort((a, b) {
       int comparison = 0;
       switch (_sortBy) {
         case 'date':
@@ -128,8 +148,8 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
         case 'amount':
           comparison = a.amount.compareTo(b.amount);
           break;
-        case 'product':
-          comparison = a.productId.compareTo(b.productId);
+        case 'expenseType':
+          comparison = a.expenseType.compareTo(b.expenseType);
           break;
         default:
           final dateA = a.eventDate ?? DateTime(1900);
@@ -143,7 +163,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
   void _changeFilterBy(String newFilter) {
     setState(() {
       _filterBy = newFilter;
-      _filterEvents(_searchController.text);
+      _filterExpenses(_searchController.text);
     });
   }
 
@@ -155,16 +175,16 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
         _sortBy = newSort;
         _sortAscending = newSort == 'date'
             ? false
-            : true; // Events default to newest first
+            : true; // Expenses default to newest first
       }
-      _sortEvents();
-      _groupEventsByCustomer(_filteredEvents);
+      _sortExpenses();
+      _groupExpensesByCustomer(_filteredExpenses);
     });
   }
 
   Future<void> _exportToCSV() async {
     try {
-      final filePath = await CsvExportService.exportEventsToCSV(_events);
+      final filePath = await CsvExportService.exportEventsToCSV(_expenses);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -186,7 +206,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
     }
   }
 
-  Widget _buildEventCard(Event event) {
+  Widget _buildExpenseCard(Event expense) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Padding(
@@ -199,7 +219,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
               children: [
                 Expanded(
                   child: Text(
-                    event.eventName,
+                    expense.expenseName,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -209,7 +229,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      '₹${event.amount.toStringAsFixed(2)}',
+                      '₹${expense.amount.toStringAsFixed(2)}',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
@@ -218,21 +238,22 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                     const SizedBox(width: 8),
                     IconButton(
                       onPressed: () async {
-                        EventDialog.showEditEventDialog(context, event);
-                        // Reload events after a short delay
-                        await Future.delayed(const Duration(milliseconds: 500));
-                        _loadEvents();
+                        await DailyExpenseDialog.showEditExpenseDialog(
+                          context,
+                          expense,
+                        );
+                        _loadExpenses();
                       },
                       icon: const Icon(Icons.edit),
                       iconSize: 20,
-                      tooltip: 'Edit Event',
+                      tooltip: 'Edit Expense',
                     ),
                     IconButton(
-                      onPressed: () => _showDeleteConfirmation(event),
+                      onPressed: () => _showDeleteConfirmation(expense),
                       icon: const Icon(Icons.delete),
                       iconSize: 20,
                       color: Colors.red,
-                      tooltip: 'Delete Event',
+                      tooltip: 'Delete Expense',
                     ),
                   ],
                 ),
@@ -248,7 +269,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'Event No: ${event.eventNo}',
+                  'Expense No: ${expense.eventNo}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -257,17 +278,49 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
             Row(
               children: [
                 Icon(
-                  Icons.inventory_2,
+                  Icons.person,
                   size: 16,
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'Product: ${event.productId}',
+                  'Customer: ${expense.customerName}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(
+                  Icons.event,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  'Customer Event: ${expense.customerEventNo}',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+              ],
+            ),
+            if (expense.productId.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(
+                    Icons.inventory_2,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Product: ${expense.productId}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 4),
             Row(
               children: [
@@ -278,29 +331,12 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'Type: ${event.expenseType}',
+                  'Type: ${expense.expenseType}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
             ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Icon(
-                  Icons.description,
-                  size: 16,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Text(
-                    'Expense: ${event.expenseName}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-              ],
-            ),
-            if (event.eventDate != null) ...[
+            if (expense.eventDate != null) ...[
               const SizedBox(height: 4),
               Row(
                 children: [
@@ -311,7 +347,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'Date: ${event.eventDate!.day}/${event.eventDate!.month}/${event.eventDate!.year}',
+                    'Date: ${expense.eventDate!.day}/${expense.eventDate!.month}/${expense.eventDate!.year}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],
@@ -323,14 +359,14 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
     );
   }
 
-  Future<void> _showDeleteConfirmation(Event event) async {
+  Future<void> _showDeleteConfirmation(Event expense) async {
     final bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Delete Event'),
+          title: const Text('Delete Expense'),
           content: Text(
-            'Are you sure you want to delete the event "${event.eventName}"?\n\nThis action cannot be undone.',
+            'Are you sure you want to delete the expense "${expense.expenseName}"?\n\nThis action cannot be undone.',
           ),
           actions: [
             TextButton(
@@ -348,25 +384,27 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
     );
 
     if (confirmed == true) {
-      await _deleteEvent(event);
+      await _deleteExpense(expense);
     }
   }
 
-  Future<void> _deleteEvent(Event event) async {
+  Future<void> _deleteExpense(Event expense) async {
     try {
-      final success = await _eventService.deleteEvent(event.eventNo);
+      final success = await _eventService.deleteEvent(expense.eventNo);
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Event "${event.eventName}" deleted successfully'),
+            content: Text(
+              'Expense "${expense.expenseName}" deleted successfully',
+            ),
             backgroundColor: Colors.green,
           ),
         );
-        _loadEvents(); // Refresh the list
+        _loadExpenses(); // Refresh the list
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Failed to delete event'),
+            content: Text('Failed to delete expense'),
             backgroundColor: Colors.red,
           ),
         );
@@ -374,7 +412,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Error deleting event: $e'),
+          content: Text('Error deleting expense: $e'),
           backgroundColor: Colors.red,
         ),
       );
@@ -432,21 +470,18 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                 if (_currentViewMode == ViewMode.table)
                   const SizedBox(width: 8),
                 IconButton(
-                  onPressed: _loadEvents,
+                  onPressed: _loadExpenses,
                   icon: const Icon(Icons.refresh),
                   tooltip: 'Refresh',
                 ),
+                const SizedBox(width: 8),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    EventDialog.showAddEventDialog(context);
-                    // Reload events after a short delay to allow for database updates
-                    Future.delayed(
-                      const Duration(milliseconds: 500),
-                      () => _loadEvents(),
-                    );
+                  onPressed: () async {
+                    await DailyExpenseDialog.showAddExpenseDialog(context);
+                    _loadExpenses();
                   },
                   icon: Icon(Icons.add, size: 18),
-                  label: Text('Add Event'),
+                  label: Text('Add Expense'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF6FAADB),
                     foregroundColor: Colors.white,
@@ -475,13 +510,13 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    labelText: 'Search daily events...',
+                    labelText: 'Search daily expenses...',
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             onPressed: () {
                               _searchController.clear();
-                              _filterEvents('');
+                              _filterExpenses('');
                             },
                             icon: const Icon(Icons.clear),
                           )
@@ -490,7 +525,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                     filled: true,
                     fillColor: Theme.of(context).colorScheme.surface,
                   ),
-                  onChanged: _filterEvents,
+                  onChanged: _filterExpenses,
                 ),
                 const SizedBox(height: 16),
                 // Filter and Sort Controls
@@ -511,7 +546,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                             children: [
                               _buildFilterChip('All', 'all'),
                               _buildFilterChip('Customer', 'customer'),
-                              _buildFilterChip('Product', 'product'),
+                              _buildFilterChip('Expense Type', 'expenseType'),
                             ],
                           ),
                         ],
@@ -534,7 +569,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                               _buildSortChip('Date', 'date'),
                               _buildSortChip('Customer', 'customer'),
                               _buildSortChip('Amount', 'amount'),
-                              _buildSortChip('Product', 'product'),
+                              _buildSortChip('Expense Type', 'expenseType'),
                             ],
                           ),
                         ],
@@ -550,7 +585,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _filteredEvents.isEmpty
+                : _filteredExpenses.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -562,7 +597,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No events found.\nTap + to add your first event!',
+                          'No expenses found.\nTap + to add your first expense!',
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(
@@ -599,25 +634,7 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
               columns: [
                 DataColumn(
                   label: Text(
-                    'Event No',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Event Name',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Customer',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                DataColumn(
-                  label: Text(
-                    'Expense Type',
+                    'Expense No',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
@@ -629,18 +646,36 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                 ),
                 DataColumn(
                   label: Text(
+                    'Customer',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Product',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
+                    'Expense Type',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
                     'Amount (₹)',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
                 DataColumn(
                   label: Text(
-                    'Event Date',
+                    'Date',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
-              rows: _events.map((event) {
+              rows: _filteredExpenses.map((event) {
                 return DataRow(
                   cells: [
                     DataCell(Text(event.eventNo)),
@@ -666,16 +701,16 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                       SizedBox(
                         width: 100,
                         child: Text(
-                          event.expenseType,
+                          event.productId.isEmpty ? 'N/A' : event.productId,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ),
                     DataCell(
                       SizedBox(
-                        width: 120,
+                        width: 100,
                         child: Text(
-                          event.expenseName,
+                          event.expenseType,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -709,22 +744,38 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
 
   Widget _buildCardView() {
     return RefreshIndicator(
-      onRefresh: _loadEvents,
+      onRefresh: _loadExpenses,
       child: ListView(
         padding: const EdgeInsets.all(16),
-        children: _groupedEvents.entries.map((entry) {
+        children: _groupedExpenses.entries.map((entry) {
           final custId = entry.key;
-          final customerEvents = entry.value;
-          final customerName = customerEvents.isNotEmpty
-              ? customerEvents.first.customerName
+          final customerExpenses = entry.value;
+          final customerName = customerExpenses.isNotEmpty
+              ? customerExpenses.first.customerName
               : 'Unknown Customer';
+
+          // Get customer event name if available
+          final customerEventNo = customerExpenses.isNotEmpty
+              ? customerExpenses.first.customerEventNo
+              : null;
+          final customerEventName =
+              customerEventNo != null &&
+                  _customerEvents.containsKey(customerEventNo)
+              ? _customerEvents[customerEventNo]!.eventName
+              : null;
+
+          // Create display title with customer name and event name
+          final displayTitle = customerEventName != null
+              ? '$customerName - $customerEventName'
+              : customerName;
+
           final total = _customerTotals[custId] ?? 0.0;
 
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
             child: ExpansionTile(
               title: Text(
-                customerName,
+                displayTitle,
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
@@ -754,8 +805,8 @@ class _DailyEventsPageState extends State<DailyEventsPage> {
                   ),
                 ],
               ),
-              children: customerEvents
-                  .map((event) => _buildEventCard(event))
+              children: customerExpenses
+                  .map((expense) => _buildExpenseCard(expense))
                   .toList(),
             ),
           );
