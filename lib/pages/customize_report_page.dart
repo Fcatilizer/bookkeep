@@ -1438,7 +1438,7 @@ class _ThermalPreviewPageState extends State<ThermalPreviewPage> {
         _buildThermalRow('Cust ID:', 'CUST001'),
         _buildThermalRow('Quantity:', '1'),
         const SizedBox(height: 4),
-        
+
         Text(
           'STATUS: ACTIVE',
           textAlign: TextAlign.center,
@@ -1450,10 +1450,10 @@ class _ThermalPreviewPageState extends State<ThermalPreviewPage> {
           ),
         ),
         const SizedBox(height: 4),
-        
+
         _buildThermalRow('Date:', '28/9/2025'),
         const SizedBox(height: 8),
-        
+
         // Dashed divider
         Row(
           children: List.generate(
