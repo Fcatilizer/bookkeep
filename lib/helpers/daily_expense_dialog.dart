@@ -374,26 +374,47 @@ class _DailyExpenseDialogWidgetState extends State<_DailyExpenseDialogWidget> {
                         items: _expenseTypes.map((expenseType) {
                           return DropdownMenuItem(
                             value: expenseType,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  expenseType.expenseTypeName,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                if (expenseType.category.isNotEmpty)
-                                  Text(
-                                    'Category: ${expenseType.category}',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
+                            child: Tooltip(
+                              message: expenseType.category.isNotEmpty
+                                  ? 'Category: ${expenseType.category}'
+                                  : expenseType.expenseTypeName,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      expenseType.expenseTypeName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
-                              ],
+                                  if (expenseType.category.isNotEmpty)
+                                    Container(
+                                      margin: const EdgeInsets.only(left: 8),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 6,
+                                        vertical: 2,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primaryContainer
+                                            .withOpacity(0.3),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        expenseType.category,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           );
                         }).toList(),

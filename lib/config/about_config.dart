@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class AboutConfig {
   // App Information
   static const String appName = 'BookKeep Accounting';
-  static const String appVersion = 'Version 2.5.0';
+  static const String appVersion = 'Version 3.0.0';
   static const String appDescription =
       'BookKeep is a comprehensive accounting application designed to help you manage your business finances efficiently. Track customers, products, daily events, and customer transactions all in one place.';
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'account_details.dart';
 import 'data_privacy_page.dart';
+// import 'customize_report_page.dart'; // Commented out - finish later
 import 'appearance_page.dart';
 import 'about_page.dart';
 
@@ -10,6 +11,7 @@ class SettingsPage extends StatelessWidget {
   static const List<_SettingItem> items = [
     _SettingItem(icon: Icons.account_circle, title: 'Account'),
     _SettingItem(icon: Icons.lock, title: 'Data and Privacy'),
+    // _SettingItem(icon: Icons.assessment, title: 'Customize Report'), // Commented out - finish later
     _SettingItem(icon: Icons.palette, title: 'Appearance'),
     _SettingItem(icon: Icons.info, title: 'About'),
   ];
@@ -47,6 +49,12 @@ class SettingsPage extends StatelessWidget {
           MaterialPageRoute(builder: (context) => const DataPrivacyPage()),
         );
         break;
+      // case 'Customize Report': // Commented out - finish later
+      //   Navigator.push(
+      //     context,
+      //     MaterialPageRoute(builder: (context) => const CustomizeReportPage()),
+      //   );
+      //   break;
       case 'Appearance':
         Navigator.push(
           context,

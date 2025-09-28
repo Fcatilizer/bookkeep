@@ -652,6 +652,12 @@ class _DailyExpensePageState extends State<DailyExpensePage> {
                 ),
                 DataColumn(
                   label: Text(
+                    'Customer Event',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+                DataColumn(
+                  label: Text(
                     'Product',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
@@ -694,6 +700,20 @@ class _DailyExpensePageState extends State<DailyExpensePage> {
                         child: Text(
                           event.customerName,
                           overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      SizedBox(
+                        width: 150,
+                        child: Text(
+                          _customerEvents[event.customerEventNo]?.eventName ??
+                              'N/A',
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ),
