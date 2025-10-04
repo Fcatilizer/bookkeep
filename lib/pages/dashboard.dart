@@ -33,8 +33,9 @@ class _DashboardPageState extends State<DashboardPage> {
   int _totalProducts = 0;
   int _totalEvents = 0;
   int _totalCustomerEvents = 0;
-  double _totalRevenue = 0.0;
-  double _pendingAmount = 0.0;
+  double _actualRevenue = 0.0;
+  double _totalExpenses = 0.0;
+  double _netProfit = 0.0;
 
   // Recent data
   List<Event> _recentEvents = [];
@@ -73,13 +74,13 @@ class _DashboardPageState extends State<DashboardPage> {
         _totalCustomerEvents = customerEvents.length;
 
         // Calculate financial metrics
-        _totalRevenue = customerEvents.fold(
-          0.0,
-          (sum, event) => sum + event.agreedAmount,
-        );
-        _pendingAmount = customerEvents
-            .where((event) => event.status != 'completed')
+        _actualRevenue = customerEvents
+            .where((event) => event.status == 'completed')
             .fold(0.0, (sum, event) => sum + event.agreedAmount);
+
+        _totalExpenses = events.fold(0.0, (sum, event) => sum + event.amount);
+
+        _netProfit = _actualRevenue - _totalExpenses;
 
         // Recent data (last 5 items)
         _recentEvents = events.take(5).toList();
@@ -239,8 +240,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 children: [
                   Expanded(
                     child: _buildFinancialCard(
-                      'Total Revenue',
-                      '₹${_totalRevenue.toStringAsFixed(2)}',
+                      'Actual Revenue',
+                      '₹${_actualRevenue.toStringAsFixed(2)}',
                       Icons.trending_up,
                       Colors.green,
                     ),
@@ -248,13 +249,23 @@ class _DashboardPageState extends State<DashboardPage> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: _buildFinancialCard(
-                      'Pending Amount',
-                      '₹${_pendingAmount.toStringAsFixed(2)}',
-                      Icons.pending,
-                      Colors.orange,
+                      'Total Expenses',
+                      '₹${_totalExpenses.toStringAsFixed(2)}',
+                      Icons.money_off,
+                      Colors.red,
                     ),
                   ),
                 ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Net Profit Card (full width)
+              _buildFinancialCard(
+                'Net Profit',
+                '₹${_netProfit.toStringAsFixed(2)}',
+                _netProfit >= 0 ? Icons.trending_up : Icons.trending_down,
+                _netProfit >= 0 ? Colors.green : Colors.red,
               ),
 
               const SizedBox(height: 24),
