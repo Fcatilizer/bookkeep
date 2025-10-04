@@ -18,7 +18,9 @@ class ProductDialog {
         title: const Text('Add New Product'),
         content: SingleChildScrollView(
           child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
+            width: MediaQuery.of(context).size.width > 600
+                ? MediaQuery.of(context).size.width * 0.4
+                : MediaQuery.of(context).size.width * 0.9,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

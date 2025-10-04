@@ -22,7 +22,9 @@ class CustomerDialog {
         title: const Text('Add New Customer'),
         content: SingleChildScrollView(
           child: SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
+            width: MediaQuery.of(context).size.width > 600
+                ? MediaQuery.of(context).size.width * 0.5
+                : MediaQuery.of(context).size.width * 0.9,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

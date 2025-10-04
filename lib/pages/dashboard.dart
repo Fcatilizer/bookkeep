@@ -185,44 +185,102 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 16),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildCompactStatCard(
-                      'Total Customers',
-                      _totalCustomers.toString(),
-                      Icons.people,
-                      Colors.blue,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildCompactStatCard(
-                      'Total Products',
-                      _totalProducts.toString(),
-                      Icons.inventory_2,
-                      Colors.green,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildCompactStatCard(
-                      'Total Events',
-                      _totalEvents.toString(),
-                      Icons.event,
-                      Colors.orange,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildCompactStatCard(
-                      'Active Projects',
-                      _totalCustomerEvents.toString(),
-                      Icons.work,
-                      Colors.purple,
-                    ),
-                  ),
-                ],
+              // Quick Overview - Responsive Layout
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  // Use 2x2 grid on mobile, 4 columns on desktop
+                  bool isMobile = constraints.maxWidth < 600;
+
+                  if (isMobile) {
+                    return Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildCompactStatCard(
+                                'Total Customers',
+                                _totalCustomers.toString(),
+                                Icons.people,
+                                Colors.blue,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _buildCompactStatCard(
+                                'Total Products',
+                                _totalProducts.toString(),
+                                Icons.inventory_2,
+                                Colors.green,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildCompactStatCard(
+                                'Total Events',
+                                _totalEvents.toString(),
+                                Icons.event,
+                                Colors.orange,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: _buildCompactStatCard(
+                                'Active Projects',
+                                _totalCustomerEvents.toString(),
+                                Icons.work,
+                                Colors.purple,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  } else {
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: _buildCompactStatCard(
+                            'Total Customers',
+                            _totalCustomers.toString(),
+                            Icons.people,
+                            Colors.blue,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildCompactStatCard(
+                            'Total Products',
+                            _totalProducts.toString(),
+                            Icons.inventory_2,
+                            Colors.green,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildCompactStatCard(
+                            'Total Events',
+                            _totalEvents.toString(),
+                            Icons.event,
+                            Colors.orange,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildCompactStatCard(
+                            'Active Projects',
+                            _totalCustomerEvents.toString(),
+                            Icons.work,
+                            Colors.purple,
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                },
               ),
 
               const SizedBox(height: 24),
@@ -236,36 +294,75 @@ class _DashboardPageState extends State<DashboardPage> {
               ),
               const SizedBox(height: 16),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildFinancialCard(
-                      'Actual Revenue',
-                      '₹${_actualRevenue.toStringAsFixed(2)}',
-                      Icons.trending_up,
-                      Colors.green,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildFinancialCard(
-                      'Total Expenses',
-                      '₹${_totalExpenses.toStringAsFixed(2)}',
-                      Icons.money_off,
-                      Colors.red,
-                    ),
-                  ),
-                ],
-              ),
+              // Financial Overview - Responsive Layout
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  bool isMobile = constraints.maxWidth < 600;
 
-              const SizedBox(height: 16),
-
-              // Net Profit Card (full width)
-              _buildFinancialCard(
-                'Net Profit',
-                '₹${_netProfit.toStringAsFixed(2)}',
-                _netProfit >= 0 ? Icons.trending_up : Icons.trending_down,
-                _netProfit >= 0 ? Colors.green : Colors.red,
+                  if (isMobile) {
+                    return Column(
+                      children: [
+                        _buildFinancialCard(
+                          'Actual Revenue',
+                          '₹${_actualRevenue.toStringAsFixed(2)}',
+                          Icons.trending_up,
+                          Colors.green,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildFinancialCard(
+                          'Total Expenses',
+                          '₹${_totalExpenses.toStringAsFixed(2)}',
+                          Icons.money_off,
+                          Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildFinancialCard(
+                          'Net Profit',
+                          '₹${_netProfit.toStringAsFixed(2)}',
+                          _netProfit >= 0
+                              ? Icons.trending_up
+                              : Icons.trending_down,
+                          _netProfit >= 0 ? Colors.green : Colors.red,
+                        ),
+                      ],
+                    );
+                  } else {
+                    return Column(
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildFinancialCard(
+                                'Actual Revenue',
+                                '₹${_actualRevenue.toStringAsFixed(2)}',
+                                Icons.trending_up,
+                                Colors.green,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: _buildFinancialCard(
+                                'Total Expenses',
+                                '₹${_totalExpenses.toStringAsFixed(2)}',
+                                Icons.money_off,
+                                Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        _buildFinancialCard(
+                          'Net Profit',
+                          '₹${_netProfit.toStringAsFixed(2)}',
+                          _netProfit >= 0
+                              ? Icons.trending_up
+                              : Icons.trending_down,
+                          _netProfit >= 0 ? Colors.green : Colors.red,
+                        ),
+                      ],
+                    );
+                  }
+                },
               ),
 
               const SizedBox(height: 24),
@@ -296,15 +393,26 @@ class _DashboardPageState extends State<DashboardPage> {
                               ).colorScheme.onPrimaryContainer,
                             ),
                           ),
-                          title: Text(event.eventName),
+                          title: Text(
+                            event.eventName,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                           subtitle: Text(
                             '${event.customerName} • ₹${event.agreedAmount.toStringAsFixed(2)}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                          trailing: Text(
-                            event.eventDate != null
-                                ? '${event.eventDate!.day}/${event.eventDate!.month}'
-                                : '',
-                            style: Theme.of(context).textTheme.bodySmall,
+                          trailing: SizedBox(
+                            width: 40,
+                            child: Text(
+                              event.eventDate != null
+                                  ? '${event.eventDate!.day}/${event.eventDate!.month}'
+                                  : '',
+                              style: Theme.of(context).textTheme.bodySmall,
+                              textAlign: TextAlign.right,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                       )
@@ -344,11 +452,26 @@ class _DashboardPageState extends State<DashboardPage> {
                               ).colorScheme.onSecondaryContainer,
                             ),
                           ),
-                          title: Text(event.eventName),
+                          title: Text(
+                            event.eventName,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                           subtitle: Text(
                             '${event.customerName} • ${event.expenseType}',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                          trailing: Text('₹${event.amount.toStringAsFixed(2)}'),
+                          trailing: SizedBox(
+                            width: 80,
+                            child: Text(
+                              '₹${event.amount.toStringAsFixed(2)}',
+                              textAlign: TextAlign.right,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w500),
+                            ),
+                          ),
                         ),
                       )
                       .toList(),
@@ -506,11 +629,13 @@ class _DashboardPageState extends State<DashboardPage> {
           children: [
             Icon(icon, size: 20, color: color),
             const SizedBox(height: 6),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
+            FittedBox(
+              child: Text(
+                value,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
             ),
             const SizedBox(height: 2),
@@ -552,16 +677,21 @@ class _DashboardPageState extends State<DashboardPage> {
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       fontWeight: FontWeight.w500,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 12),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: color,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
             ),
           ],

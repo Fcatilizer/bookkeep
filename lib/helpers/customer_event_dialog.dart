@@ -50,7 +50,9 @@ class CustomerEventDialog {
           title: const Text('Add New Customer Event'),
           content: SingleChildScrollView(
             child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
+              width: MediaQuery.of(context).size.width > 600
+                  ? MediaQuery.of(context).size.width * 0.6
+                  : MediaQuery.of(context).size.width * 0.9,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -425,7 +427,9 @@ class CustomerEventDialog {
           title: Text('Edit Customer Event: ${customerEvent.eventNo}'),
           content: SingleChildScrollView(
             child: SizedBox(
-              width: MediaQuery.of(context).size.width * 0.8,
+              width: MediaQuery.of(context).size.width > 600
+                  ? MediaQuery.of(context).size.width * 0.6
+                  : MediaQuery.of(context).size.width * 0.9,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

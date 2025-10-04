@@ -661,24 +661,35 @@ class _ProductMasterPageState extends State<ProductMasterPage> {
                       ),
                     ),
                     DataCell(
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.edit, size: 18),
-                            onPressed: () => _showAddProductDialog(product),
-                            tooltip: 'Edit',
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.delete,
-                              size: 18,
-                              color: Colors.red,
+                      SizedBox(
+                        width: 100,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.edit, size: 18),
+                              onPressed: () => _showAddProductDialog(product),
+                              tooltip: 'Edit',
+                              constraints: BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
+                              ),
                             ),
-                            onPressed: () => _showDeleteConfirmation(product),
-                            tooltip: 'Delete',
-                          ),
-                        ],
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete,
+                                size: 18,
+                                color: Colors.red,
+                              ),
+                              onPressed: () => _showDeleteConfirmation(product),
+                              tooltip: 'Delete',
+                              constraints: BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

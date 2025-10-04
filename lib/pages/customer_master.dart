@@ -397,107 +397,121 @@ class _CustomerMasterPageState extends State<CustomerMasterPage> {
           child: Scrollbar(
             controller: _verticalScrollController,
             thumbVisibility: true,
-            child: SingleChildScrollView(
-              controller: _verticalScrollController,
-              scrollDirection: Axis.vertical,
-              child: DataTable(
-                columnSpacing: 16,
-                headingRowHeight: 48,
-                dataRowHeight: 48,
-                columns: const [
-                  DataColumn(
-                    label: Text(
-                      'Customer ID',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+            child: Scrollbar(
+              controller: _horizontalScrollController,
+              thumbVisibility: true,
+              scrollbarOrientation: ScrollbarOrientation.bottom,
+              child: SingleChildScrollView(
+                controller: _horizontalScrollController,
+                scrollDirection: Axis.horizontal,
+                child: SingleChildScrollView(
+                  controller: _verticalScrollController,
+                  scrollDirection: Axis.vertical,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: MediaQuery.of(context).size.width,
                     ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      'Customer Name',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      'Mobile No',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      'Contact Person',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      'GST No',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      'Location',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-                rows: _filteredCustomers.map((customer) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(customer.custId)),
-                      DataCell(
-                        SizedBox(
-                          width: 150,
-                          child: Text(
-                            customer.customerName,
-                            overflow: TextOverflow.ellipsis,
+                    child: DataTable(
+                      columnSpacing: 16,
+                      headingRowHeight: 48,
+                      dataRowHeight: 48,
+                      columns: const [
+                        DataColumn(
+                          label: Text(
+                            'Customer ID',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ),
-                      DataCell(
-                        SizedBox(
-                          width: 120,
-                          child: Text(
-                            customer.mobileNo,
-                            overflow: TextOverflow.ellipsis,
+                        DataColumn(
+                          label: Text(
+                            'Customer Name',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ),
-                      DataCell(
-                        SizedBox(
-                          width: 150,
-                          child: Text(
-                            customer.contactPerson,
-                            overflow: TextOverflow.ellipsis,
+                        DataColumn(
+                          label: Text(
+                            'Mobile No',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ),
-                      DataCell(
-                        SizedBox(
-                          width: 120,
-                          child: Text(
-                            customer.gstNo,
-                            overflow: TextOverflow.ellipsis,
+                        DataColumn(
+                          label: Text(
+                            'Contact Person',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ),
-                      DataCell(
-                        SizedBox(
-                          width: 120,
-                          child: Text(
-                            customer.location,
-                            overflow: TextOverflow.ellipsis,
+                        DataColumn(
+                          label: Text(
+                            'GST No',
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ), // closes DataTable
-            ), // closes vertical SingleChildScrollView
-          ), // closes vertical Scrollbar
-        ), // closes Expanded
+                        DataColumn(
+                          label: Text(
+                            'Location',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                      rows: _filteredCustomers.map((customer) {
+                        return DataRow(
+                          cells: [
+                            DataCell(Text(customer.custId)),
+                            DataCell(
+                              SizedBox(
+                                width: 150,
+                                child: Text(
+                                  customer.customerName,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: 120,
+                                child: Text(
+                                  customer.mobileNo,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: 150,
+                                child: Text(
+                                  customer.contactPerson,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: 120,
+                                child: Text(
+                                  customer.gstNo,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            DataCell(
+                              SizedBox(
+                                width: 120,
+                                child: Text(
+                                  customer.location,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ], // closes Column children
     ); // closes Column
   }

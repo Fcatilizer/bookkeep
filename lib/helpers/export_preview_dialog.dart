@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
+import 'dart:typed_data';
 import '../models/customer_event.dart';
 import '../services/export_service.dart';
 import '../services/settings_service.dart';
@@ -48,7 +50,12 @@ class _ExportPreviewDialogState extends State<ExportPreviewDialog>
   String _gstNumber = '';
 
   bool _isLoading = true;
+  bool _isPrinting = false;
   bool _isSavingPdf = false;
+
+  // Printer selection variables
+  Printer? _selectedPrinter;
+  bool _isA4Format = true;
 
   @override
   void initState() {
@@ -799,16 +806,18 @@ class _ExportPreviewDialogState extends State<ExportPreviewDialog>
                 label: Text(_isSavingPdf ? 'Saving...' : 'Save PDF'),
               ),
               ElevatedButton.icon(
-                onPressed: null, // Disabled for now as requested
-                icon: const Icon(Icons.print),
-                label: const Text('Print'),
+                onPressed: _isPrinting ? null : () => _showPrinterDialog(isA4),
+                icon: _isPrinting
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.print),
+                label: Text(_isPrinting ? 'Printing...' : 'Print'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withOpacity(0.3),
-                  foregroundColor: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
                 ),
               ),
             ],
@@ -816,6 +825,194 @@ class _ExportPreviewDialogState extends State<ExportPreviewDialog>
         ),
       ],
     );
+  }
+
+  Future<void> _showPrinterDialog(bool isA4Format) async {
+    _isA4Format = isA4Format; // Store format for later use
+
+    // Get available printers
+    final printers = await Printing.listPrinters();
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Row(
+                children: [
+                  Icon(Icons.print),
+                  SizedBox(width: 8),
+                  Text('Select Printer'),
+                ],
+              ),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (printers.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text('No printers available'),
+                      )
+                    else ...[
+                      const Text('Choose a printer:'),
+                      const SizedBox(height: 16),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxHeight: 300),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: printers.length,
+                          itemBuilder: (context, index) {
+                            final printer = printers[index];
+                            final isSelected =
+                                _selectedPrinter?.name == printer.name;
+                            final isDefault = printer.isDefault;
+
+                            return Card(
+                              color: isSelected
+                                  ? Theme.of(
+                                      context,
+                                    ).colorScheme.primaryContainer
+                                  : null,
+                              child: ListTile(
+                                leading: Icon(
+                                  Icons.print,
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.primary
+                                      : null,
+                                ),
+                                title: Text(
+                                  printer.name,
+                                  style: TextStyle(
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Status: ${printer.isAvailable ? "Available" : "Unavailable"}',
+                                    ),
+                                    if (isDefault)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Default',
+                                          style: TextStyle(
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.onSecondary,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                trailing: isSelected
+                                    ? Icon(
+                                        Icons.check_circle,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      )
+                                    : null,
+                                onTap: () {
+                                  setState(() {
+                                    _selectedPrinter = printer;
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: _selectedPrinter == null
+                      ? null
+                      : () {
+                          Navigator.of(context).pop();
+                          _printDocument();
+                        },
+                  child: const Text('Print'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _printDocument() async {
+    if (_selectedPrinter == null) return;
+
+    setState(() {
+      _isPrinting = true;
+    });
+
+    try {
+      // Generate PDF bytes using the ExportService
+      final pdfBytes = await ExportService().generatePdfBytes(
+        widget.event,
+        _dailyEvents,
+        _isA4Format,
+      );
+
+      await Printing.directPrintPdf(
+        printer: _selectedPrinter!,
+        onLayout: (format) => Uint8List.fromList(pdfBytes),
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Document sent to ${_selectedPrinter!.name}'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to print: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPrinting = false;
+        });
+      }
+    }
   }
 
   @override

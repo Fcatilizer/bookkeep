@@ -334,16 +334,18 @@ class ExportService {
     <title>Thermal Receipt - ${event.eventName}</title>
     <style>
         @page {
-            size: 80mm auto;
-            margin: 5mm;
+            size: 72mm auto;
+            margin: 2mm;
         }
         body {
             font-family: 'Courier New', monospace;
-            font-size: 11px;
+            font-size: 10px;
             line-height: 1.2;
             margin: 0;
             padding: 0;
-            width: 70mm;
+            width: 68mm;
+            max-width: 68mm;
+            overflow-wrap: break-word;
         }
         .header {
             text-align: center;
@@ -367,16 +369,25 @@ class ExportService {
         .row {
             display: flex;
             justify-content: space-between;
-            margin: 2px 0;
+            margin: 1px 0;
             word-wrap: break-word;
+            overflow: hidden;
         }
         .label {
             font-weight: bold;
-            width: 45%;
+            width: 60%;
+            font-size: 9px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .value {
-            width: 50%;
+            width: 35%;
             text-align: right;
+            font-size: 9px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .event-title {
             font-weight: bold;
@@ -575,7 +586,7 @@ class ExportService {
         pw.Page(
           pageFormat: isA4
               ? PdfPageFormat.a4
-              : PdfPageFormat(80 * PdfPageFormat.mm, double.infinity),
+              : PdfPageFormat(72 * PdfPageFormat.mm, double.infinity),
           build: (pw.Context context) {
             if (isA4) {
               // A4 Complex Layout
@@ -845,9 +856,8 @@ class ExportService {
             } else {
               // Simple Thermal Layout with margins
               return pw.Container(
-                padding: const pw.EdgeInsets.all(
-                  8,
-                ), // Add margin from all directions
+                width: double.infinity,
+                padding: const pw.EdgeInsets.all(4),
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.center,
                   children: [
@@ -855,7 +865,7 @@ class ExportService {
                     pw.Text(
                       companyName,
                       style: pw.TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: pw.FontWeight.bold,
                       ),
                       textAlign: pw.TextAlign.center,
@@ -864,25 +874,25 @@ class ExportService {
                       width: double.infinity,
                       child: pw.Text(
                         companyAddress,
-                        style: pw.TextStyle(fontSize: 10),
+                        style: pw.TextStyle(fontSize: 8),
                         textAlign: pw.TextAlign.center,
                         maxLines: 3,
-                        overflow: pw.TextOverflow.visible,
+                        overflow: pw.TextOverflow.clip,
                       ),
                     ),
                     if (phoneNumber.isNotEmpty) ...[
-                      pw.SizedBox(height: 2),
+                      pw.SizedBox(height: 1),
                       pw.Text(
-                        'Phone: $phoneNumber',
-                        style: pw.TextStyle(fontSize: 8),
+                        'Ph: $phoneNumber',
+                        style: pw.TextStyle(fontSize: 7),
                         textAlign: pw.TextAlign.center,
                       ),
                     ],
                     if (gstNumber.isNotEmpty) ...[
-                      pw.SizedBox(height: 2),
+                      pw.SizedBox(height: 1),
                       pw.Text(
                         'GST: $gstNumber',
-                        style: pw.TextStyle(fontSize: 8),
+                        style: pw.TextStyle(fontSize: 7),
                         textAlign: pw.TextAlign.center,
                       ),
                     ],
@@ -891,13 +901,18 @@ class ExportService {
                     pw.SizedBox(height: 6),
 
                     // Event Name
-                    pw.Text(
-                      customerEvent.eventName,
-                      style: pw.TextStyle(
-                        fontSize: 12,
-                        fontWeight: pw.FontWeight.bold,
+                    pw.Container(
+                      width: double.infinity,
+                      child: pw.Text(
+                        customerEvent.eventName,
+                        style: pw.TextStyle(
+                          fontSize: 10,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                        textAlign: pw.TextAlign.center,
+                        maxLines: 2,
+                        overflow: pw.TextOverflow.clip,
                       ),
-                      textAlign: pw.TextAlign.center,
                     ),
                     pw.SizedBox(height: 6),
 
@@ -1038,21 +1053,32 @@ class ExportService {
   pw.Widget _buildThermalRow(String label, String value, {bool bold = false}) {
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(vertical: 1),
+      width: double.infinity,
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
-          pw.Text(
-            label,
-            style: pw.TextStyle(
-              fontSize: 10,
-              fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+          pw.Flexible(
+            flex: 3,
+            child: pw.Text(
+              label,
+              style: pw.TextStyle(
+                fontSize: 9,
+                fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+              ),
+              overflow: pw.TextOverflow.clip,
             ),
           ),
-          pw.Text(
-            value,
-            style: pw.TextStyle(
-              fontSize: 10,
-              fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+          pw.SizedBox(width: 2),
+          pw.Flexible(
+            flex: 2,
+            child: pw.Text(
+              value,
+              style: pw.TextStyle(
+                fontSize: 9,
+                fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+              ),
+              textAlign: pw.TextAlign.right,
+              overflow: pw.TextOverflow.clip,
             ),
           ),
         ],
@@ -1069,5 +1095,280 @@ class ExportService {
 
   Future<CustomerEvent?> _getEventDataForPdf() async {
     return _currentEventForPdf;
+  }
+
+  // Generate PDF bytes for printing
+  Future<List<int>> generatePdfBytes(
+    CustomerEvent event,
+    List<Map<String, dynamic>> dailyEvents,
+    bool isA4Format, {
+    String companyName = 'BOOKKEEP ACCOUNTING',
+    String companyAddress = 'Customer Event Report',
+    String phoneNumber = '',
+    String gstNumber = '',
+  }) async {
+    final pdf = pw.Document();
+
+    // Calculate totals
+    final double totalSpent = dailyEvents.fold(0.0, (sum, event) {
+      final amount = (event['Amount'] is int)
+          ? (event['Amount'] as int).toDouble()
+          : (event['Amount'] as double? ?? 0.0);
+      return sum + amount;
+    });
+
+    final double remaining = event.agreedAmount - totalSpent;
+
+    // Add page to PDF
+    pdf.addPage(
+      pw.Page(
+        pageFormat: isA4Format
+            ? PdfPageFormat.a4
+            : PdfPageFormat(72 * PdfPageFormat.mm, double.infinity),
+        build: (pw.Context context) {
+          if (isA4Format) {
+            // A4 Complex Layout
+            return pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                // Header
+                pw.Container(
+                  width: double.infinity,
+                  padding: const pw.EdgeInsets.only(bottom: 20),
+                  decoration: const pw.BoxDecoration(
+                    border: pw.Border(
+                      bottom: pw.BorderSide(color: PdfColors.black, width: 2),
+                    ),
+                  ),
+                  child: pw.Column(
+                    children: [
+                      pw.Text(
+                        companyName,
+                        style: pw.TextStyle(
+                          fontSize: 24,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.blue800,
+                        ),
+                        textAlign: pw.TextAlign.center,
+                      ),
+                      pw.SizedBox(height: 8),
+                      pw.Text(
+                        companyAddress,
+                        style: pw.TextStyle(fontSize: 14),
+                        textAlign: pw.TextAlign.center,
+                      ),
+                      if (phoneNumber.isNotEmpty || gstNumber.isNotEmpty) ...[
+                        pw.SizedBox(height: 8),
+                        pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.center,
+                          children: [
+                            if (phoneNumber.isNotEmpty) ...[
+                              pw.Text(
+                                'Phone: $phoneNumber',
+                                style: pw.TextStyle(fontSize: 12),
+                              ),
+                              if (gstNumber.isNotEmpty) pw.SizedBox(width: 20),
+                            ],
+                            if (gstNumber.isNotEmpty)
+                              pw.Text(
+                                'GST: $gstNumber',
+                                style: pw.TextStyle(fontSize: 12),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                // Rest of A4 content similar to original saveAsPdf method
+                pw.SizedBox(height: 20),
+                pw.Text(
+                  'Customer Event Report',
+                  style: pw.TextStyle(
+                    fontSize: 20,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+                // Event details would go here...
+                _buildThermalRow('Event:', event.eventNo),
+                _buildThermalRow('Customer:', event.customerName),
+                _buildThermalRow('Status:', event.status),
+                _buildThermalRow(
+                  'Agreed Amount:',
+                  'Rs.${event.agreedAmount.toStringAsFixed(2)}',
+                ),
+                if (dailyEvents.isNotEmpty) ...[
+                  pw.SizedBox(height: 20),
+                  pw.Text(
+                    'Daily Expenses:',
+                    style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                  ),
+                  ...dailyEvents.map(
+                    (e) => _buildThermalRow(
+                      e['Event_Name'] ?? '',
+                      'Rs.${((e['Amount'] is int) ? (e['Amount'] as int).toDouble() : (e['Amount'] as double? ?? 0.0)).toStringAsFixed(2)}',
+                    ),
+                  ),
+                ],
+                pw.SizedBox(height: 20),
+                _buildThermalRow(
+                  'Total Spent:',
+                  'Rs.${totalSpent.toStringAsFixed(2)}',
+                  bold: true,
+                ),
+                _buildThermalRow(
+                  'Remaining:',
+                  'Rs.${remaining.toStringAsFixed(2)}',
+                  bold: true,
+                ),
+              ],
+            );
+          } else {
+            // Thermal Layout (same as original)
+            return pw.Container(
+              width: double.infinity,
+              padding: const pw.EdgeInsets.all(4),
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  // Header
+                  pw.Text(
+                    companyName,
+                    style: pw.TextStyle(
+                      fontSize: 11,
+                      fontWeight: pw.FontWeight.bold,
+                    ),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                  pw.Container(
+                    width: double.infinity,
+                    child: pw.Text(
+                      companyAddress,
+                      style: pw.TextStyle(fontSize: 8),
+                      textAlign: pw.TextAlign.center,
+                      maxLines: 3,
+                      overflow: pw.TextOverflow.clip,
+                    ),
+                  ),
+                  if (phoneNumber.isNotEmpty) ...[
+                    pw.SizedBox(height: 1),
+                    pw.Text(
+                      'Ph: $phoneNumber',
+                      style: pw.TextStyle(fontSize: 7),
+                      textAlign: pw.TextAlign.center,
+                    ),
+                  ],
+                  if (gstNumber.isNotEmpty) ...[
+                    pw.SizedBox(height: 1),
+                    pw.Text(
+                      'GST: $gstNumber',
+                      style: pw.TextStyle(fontSize: 7),
+                      textAlign: pw.TextAlign.center,
+                    ),
+                  ],
+                  pw.SizedBox(height: 4),
+                  pw.Container(height: 1, color: PdfColors.black),
+                  pw.SizedBox(height: 6),
+
+                  // Event Name
+                  pw.Container(
+                    width: double.infinity,
+                    child: pw.Text(
+                      event.eventName,
+                      style: pw.TextStyle(
+                        fontSize: 10,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                      textAlign: pw.TextAlign.center,
+                      maxLines: 2,
+                      overflow: pw.TextOverflow.clip,
+                    ),
+                  ),
+                  pw.SizedBox(height: 6),
+
+                  // Simple details
+                  _buildThermalRow('Event:', event.eventNo),
+                  _buildThermalRow('Customer:', event.customerName),
+                  _buildThermalRow('Cust ID:', event.custId),
+                  _buildThermalRow('Quantity:', event.quantity.toString()),
+                  _buildThermalRow('Status:', event.status),
+
+                  if (event.eventDate != null)
+                    _buildThermalRow(
+                      'Date:',
+                      '${event.eventDate!.day}/${event.eventDate!.month}/${event.eventDate!.year}',
+                    ),
+
+                  pw.SizedBox(height: 4),
+                  pw.Container(height: 1, color: PdfColors.black),
+                  pw.SizedBox(height: 4),
+
+                  _buildThermalRow(
+                    'Agreed Amount:',
+                    'Rs.${event.agreedAmount.toStringAsFixed(2)}',
+                  ),
+
+                  if (dailyEvents.isNotEmpty) ...[
+                    pw.SizedBox(height: 6),
+                    pw.Text(
+                      'Daily Expense:',
+                      style: pw.TextStyle(
+                        fontSize: 10,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                      textAlign: pw.TextAlign.center,
+                    ),
+                    pw.SizedBox(height: 2),
+                    ...dailyEvents.map((event) {
+                      final amount = (event['Amount'] is int)
+                          ? (event['Amount'] as int).toDouble()
+                          : (event['Amount'] as double? ?? 0.0);
+                      return _buildThermalRow(
+                        event['Event_Name'] ?? 'Unnamed',
+                        'Rs.${amount.toStringAsFixed(2)}',
+                      );
+                    }),
+                  ],
+
+                  pw.SizedBox(height: 4),
+                  pw.Container(height: 2, color: PdfColors.black),
+                  pw.SizedBox(height: 4),
+
+                  _buildThermalRow(
+                    'Total Spent:',
+                    'Rs.${totalSpent.toStringAsFixed(2)}',
+                    bold: true,
+                  ),
+                  _buildThermalRow(
+                    'Remaining:',
+                    'Rs.${remaining.toStringAsFixed(2)}',
+                    bold: true,
+                  ),
+
+                  pw.SizedBox(height: 4),
+                  pw.Container(height: 1, color: PdfColors.black),
+                  pw.SizedBox(height: 4),
+
+                  pw.Text(
+                    'Thank you for your business!',
+                    style: pw.TextStyle(fontSize: 8),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                  pw.SizedBox(height: 4),
+                  pw.Text(
+                    'Generated on: ${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}',
+                    style: pw.TextStyle(fontSize: 7),
+                    textAlign: pw.TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+        },
+      ),
+    );
+
+    return await pdf.save();
   }
 }
